@@ -149,6 +149,9 @@ axiom propext {a b : Prop} : (a ↔ b) → a = b
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 It asserts that when two propositions imply one another, they are
 actually equal. This is consistent with set-theoretic
 interpretations in which any element =a : Prop= is either empty or the
@@ -167,6 +170,9 @@ section
   propext h ▸ h₁
 end
 #+END_SRC
+
+#+RESULTS:
+
 The first example could be proved more laboriously without =propext=
 using the fact that the propositional connectives respect
 propositional equivalence. The second example represents a more
@@ -191,6 +197,10 @@ print axioms thm₂  -- propext
 -- END
 #+END_SRC
 
+#+RESULTS:
+: propext
+: propext
+
 ** Function Extensionality
 
 Similar to propositional extensionality, function extensionality
@@ -202,6 +212,12 @@ universes u₁ u₂
 check (@funext : ∀ {α : Type u₁} {β : α → Type u₂} {f₁ f₂ : Π (x : α), β x},
         (∀ (x : α), f₁ x = f₂ x) → f₁ = f₂)
 #+END_SRC
+
+#+RESULTS:
+: funext :
+:   ∀ {α : Type u₁} {β : α → Type u₂} {f₁ f₂ : Π (x : α), β x},
+:     (∀ (x : α), f₁ x = f₂ x) → f₁ = f₂
+
 From a classical, set-theoretic perspective, this is exactly what it
 means for two functions to be equal. This is known as an "extensional"
 view of functions. From a constructive perspective, however, it is
@@ -245,6 +261,9 @@ end set
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 We can then proceed to define the empty set and set intersection, for
 example, and prove set identities:
 #+BEGIN_SRC lean
@@ -289,6 +308,8 @@ end set
 end hide
 #+END_SRC
 
+#+RESULTS:
+
 The following is an example of how function extensionality blocks
 computation inside the Lean kernel.
 #+BEGIN_SRC lean
@@ -305,6 +326,267 @@ eval val
 -- evaluates to 0
 vm_eval val
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+eq.rec 0
+  (eq.rec (eq.refl (λ (x : ℕ), x))
+     (eq.rec (eq.refl (λ (x : ℕ), x))
+        (quot.sound
+           (λ (x : ℕ),
+              eq.rec
+                (eq.refl
+                   (pprod.rec
+                      (λ (fst : ℕ → ℕ)
+                       (snd : nat.rec punit (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit) x),
+                         fst)
+                      (nat.rec {fst := λ (a : ℕ), a, snd := punit.star}
+                         (λ (a : ℕ)
+                          (ih_1 :
+                            pprod (ℕ → ℕ)
+                              (nat.rec punit (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit) a)),
+                            {fst := λ (a_1 : ℕ),
+                                      nat.succ
+                                        (pprod.rec
+                                           (λ (fst : ℕ → ℕ)
+                                            (snd :
+                                              nat.rec punit
+                                                (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                a), fst)
+                                           ih_1
+                                           a_1),
+                             snd := {fst := ih_1, snd := punit.star}})
+                         x)
+                      0))
+                (pprod.rec
+                   (λ
+                    (fst :
+                      pprod.rec
+                        (λ (fst : ℕ → ℕ)
+                         (snd : nat.rec punit (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit) x),
+                           fst)
+                        (nat.rec {fst := λ (a : ℕ), a, snd := punit.star}
+                           (λ (a : ℕ)
+                            (ih_1 :
+                              pprod (ℕ → ℕ)
+                                (nat.rec punit (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit) a)),
+                              {fst := λ (a_1 : ℕ),
+                                        nat.succ
+                                          (pprod.rec
+                                             (λ (fst : ℕ → ℕ)
+                                              (snd :
+                                                nat.rec punit
+                                                  (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                  a), fst)
+                                             ih_1
+                                             a_1),
+                               snd := {fst := ih_1, snd := punit.star}})
+                           x)
+                        0 = x)
+                    (snd :
+                      nat.rec punit
+                        (λ (a : ℕ) (ih_1 : Type),
+                           pprod
+                             (pprod
+                                (pprod.rec
+                                   (λ (fst : ℕ → ℕ)
+                                    (snd :
+                                      nat.rec punit (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                        a), fst)
+                                   (nat.rec {fst := λ (a : ℕ), a, snd := punit.star}
+                                      (λ (a : ℕ)
+                                       (ih_1 :
+                                         pprod (ℕ → ℕ)
+                                           (nat.rec punit
+                                              (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                              a)),
+                                         {fst := λ (a_1 : ℕ),
+                                                   nat.succ
+                                                     (pprod.rec
+                                                        (λ (fst : ℕ → ℕ)
+                                                         (snd :
+                                                           nat.rec punit
+                                                             (λ (a : ℕ) (ih_1 : Type),
+                                                                pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                             a), fst)
+                                                        ih_1
+                                                        a_1),
+                                          snd := {fst := ih_1, snd := punit.star}})
+                                      a)
+                                   0 = a)
+                                ih_1)
+                             punit)
+                        x), fst)
+                   (nat.rec {fst := eq.refl 0, snd := punit.star}
+                      (λ (a : ℕ)
+                       (ih_1 :
+                         pprod
+                           (pprod.rec
+                              (λ (fst : ℕ → ℕ)
+                               (snd :
+                                 nat.rec punit (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit) a),
+                                 fst)
+                              (nat.rec {fst := λ (a : ℕ), a, snd := punit.star}
+                                 (λ (a : ℕ)
+                                  (ih_1 :
+                                    pprod (ℕ → ℕ)
+                                      (nat.rec punit
+                                         (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                         a)),
+                                    {fst := λ (a_1 : ℕ),
+                                              nat.succ
+                                                (pprod.rec
+                                                   (λ (fst : ℕ → ℕ)
+                                                    (snd :
+                                                      nat.rec punit
+                                                        (λ (a : ℕ) (ih_1 : Type),
+                                                           pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                        a), fst)
+                                                   ih_1
+                                                   a_1),
+                                     snd := {fst := ih_1, snd := punit.star}})
+                                 a)
+                              0 = a)
+                           (nat.rec punit
+                              (λ (a : ℕ) (ih_1 : Type),
+                                 pprod
+                                   (pprod
+                                      (pprod.rec
+                                         (λ (fst : ℕ → ℕ)
+                                          (snd :
+                                            nat.rec punit
+                                              (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                              a), fst)
+                                         (nat.rec {fst := λ (a : ℕ), a, snd := punit.star}
+                                            (λ (a : ℕ)
+                                             (ih_1 :
+                                               pprod (ℕ → ℕ)
+                                                 (nat.rec punit
+                                                    (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                    a)),
+                                               {fst := λ (a_1 : ℕ),
+                                                         nat.succ
+                                                           (pprod.rec
+                                                              (λ (fst : ℕ → ℕ)
+                                                               (snd :
+                                                                 nat.rec punit
+                                                                   (λ (a : ℕ) (ih_1 : Type),
+                                                                      pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                                   a), fst)
+                                                              ih_1
+                                                              a_1),
+                                                snd := {fst := ih_1, snd := punit.star}})
+                                            a)
+                                         0 = a)
+                                      ih_1)
+                                   punit)
+                              a)),
+                         {fst := eq.rec
+                                   (eq.refl
+                                      (nat.succ
+                                         (pprod.rec
+                                            (λ (fst : ℕ → ℕ)
+                                             (snd :
+                                               nat.rec punit
+                                                 (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                 a), fst)
+                                            (nat.rec {fst := λ (a : ℕ), a, snd := punit.star}
+                                               (λ (a : ℕ)
+                                                (ih_1 :
+                                                  pprod (ℕ → ℕ)
+                                                    (nat.rec punit
+                                                       (λ (a : ℕ) (ih_1 : Type),
+                                                          pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                       a)),
+                                                  {fst := λ (a_1 : ℕ),
+                                                            nat.succ
+                                                              (pprod.rec
+                                                                 (λ (fst : ℕ → ℕ)
+                                                                  (snd :
+                                                                    nat.rec punit
+                                                                      (λ (a : ℕ) (ih_1 : Type),
+                                                                         pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                                      a), fst)
+                                                                 ih_1
+                                                                 a_1),
+                                                   snd := {fst := ih_1, snd := punit.star}})
+                                               a)
+                                            0)))
+                                   (pprod.rec
+                                      (λ
+                                       (fst :
+                                         pprod.rec
+                                           (λ (fst : ℕ → ℕ)
+                                            (snd :
+                                              nat.rec punit
+                                                (λ (a : ℕ) (ih_1 : Type), pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                a), fst)
+                                           (nat.rec {fst := λ (a : ℕ), a, snd := punit.star}
+                                              (λ (a : ℕ)
+                                               (ih_1 :
+                                                 pprod (ℕ → ℕ)
+                                                   (nat.rec punit
+                                                      (λ (a : ℕ) (ih_1 : Type),
+                                                         pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                      a)),
+                                                 {fst := λ (a_1 : ℕ),
+                                                           nat.succ
+                                                             (pprod.rec
+                                                                (λ (fst : ℕ → ℕ)
+                                                                 (snd :
+                                                                   nat.rec punit
+                                                                     (λ (a : ℕ) (ih_1 : Type),
+                                                                        pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                                     a), fst)
+                                                                ih_1
+                                                                a_1),
+                                                  snd := {fst := ih_1, snd := punit.star}})
+                                              a)
+                                           0 = a)
+                                       (snd :
+                                         nat.rec punit
+                                           (λ (a : ℕ) (ih_1 : Type),
+                                              pprod
+                                                (pprod
+                                                   (pprod.rec
+                                                      (λ (fst : ℕ → ℕ)
+                                                       (snd :
+                                                         nat.rec punit
+                                                           (λ (a : ℕ) (ih_1 : Type),
+                                                              pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                           a), fst)
+                                                      (nat.rec {fst := λ (a : ℕ), a, snd := punit.star}
+                                                         (λ (a : ℕ)
+                                                          (ih_1 :
+                                                            pprod (ℕ → ℕ)
+                                                              (nat.rec punit
+                                                                 (λ (a : ℕ) (ih_1 : Type),
+                                                                    pprod (pprod (ℕ → ℕ) ih_1) punit)
+                                                                 a)),
+                                                            {fst := λ (a_1 : ℕ),
+                                                                      nat.succ
+                                                                        (pprod.rec
+                                                                           (λ (fst : ℕ → ℕ)
+                                                                            (snd :
+                                                                              nat.rec punit
+                                                                                (λ (a : ℕ) (ih_1 : Type),
+                                                                                   pprod (pprod (ℕ → ℕ) ih_1)
+                                                                                     punit)
+                                                                                a), fst)
+                                                                           ih_1
+                                                                           a_1),
+                                                             snd := {fst := ih_1, snd := punit.star}})
+                                                         a)
+                                                      0 = a)
+                                                   ih_1)
+                                                punit)
+                                           a), fst)
+                                      ih_1),
+                          snd := {fst := ih_1, snd := punit.star}})
+                      x))))))
+0
+#+end_example
+
 First, we show that the two functions =f₁= and =f₂= are equal using
 function extensionality, and then we cast =0= of type =ℕ= by
 replacing =f₁= by =f₂= in the type. Of course, the cast is vacuous,
@@ -328,6 +610,12 @@ eval val
 -- evaluates to 0
 vm_eval val
 #+END_SRC
+
+#+RESULTS:
+: eq.rec 0
+:   (propext
+:      {mp := λ (h : true ∧ true), and.rec (λ (ha hb : true), ha) h, mpr := λ (ha : true), and.intro ha true.intro})
+: 0
 
 Current research programs, including work on
 /observational type theory/ and /cubical type theory/, aim to extend
@@ -379,6 +667,9 @@ constant quot.lift  : Π {α : Sort u} {r : α → α → Prop} {β : Sort u} (f
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 The first one forms a type =quot r= given a type =α= by any binary
 relation =r= on =α=. The second maps =α= to =quot α=, so that for any
 =a : α=, =quot.mk a= is an element of =quot r=. The third principle,
@@ -410,6 +701,11 @@ check (quot.lift f h : quot r → β)
 theorem thm : quot.lift f h (quot.mk r a) = f a := rfl
 #+END_SRC
 
+#+RESULTS:
+: quot r : Type
+: quot.mk r a : quot r
+: quot.lift f h : quot (λ (a₁ a₂ : α), r a₁ a₂) → β
+
 The four constants, =quot=, =quot.mk=, =quot.ind=, and =quot.lift= in
 and of themselves are not very strong. You can check that the
 =quot.ind= is satisfied if we take =quot r= to be simply =α=, and take
@@ -427,6 +723,10 @@ theorem thm : quot.lift f h (quot.mk r a) = f a := rfl
 print axioms thm   -- no axioms
 -- END
 #+END_SRC
+
+#+RESULTS:
+: no axioms
+
 They are, like inductively defined types and the associated
 constructors and recursors, viewed as part of the logical framework.
 
@@ -442,6 +742,9 @@ axiom quot.sound : ∀ {α : Type u} {r : α → α → Prop} {a b : α},
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 This is the axiom that asserts that any two element of =α= that are
 related by =r= become identified in the quotient. If a theorem or
 definition makes use of =quot.sound=, it will show up in the =print
@@ -491,6 +794,9 @@ end setoid
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Given a type =α=, a relation =r= on =α=, and a proof =p= that =r= is
 an equivalence relation, we can define =setoid.mk p= as an instance of
 the setoid class. 
@@ -505,6 +811,9 @@ def quotient {α : Type u} (s : setoid α) :=
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 The constants =quotient.mk=, =quotient.ind=, =quotient.lift=, and
 =quotient.sound= are nothing more than the specializations of the
 corresponding elements of =quot=. The fact that type class inference
@@ -524,6 +833,10 @@ universe u
 check (@quotient.exact : ∀ {α : Type u} [setoid α] {a b : α}, ⟦a⟧ = ⟦b⟧ → a ≈ b)
 -- END
 #+END_SRC
+
+#+RESULTS:
+: quotient.exact : ∀ {α : Type u} [s : setoid α] {a b : α}, ⟦a⟧ = ⟦b⟧ → a ≈ b
+
 Together with =quotient.sound=, this implies that the elements of the
 quotient correspond exactly to the equivalence classes of elements in
 =α=.
@@ -541,6 +854,9 @@ private definition eqv {α : Type u} (p₁ p₂ : α × α) : Prop :=
 
 infix `~` := eqv
 #+END_SRC
+
+#+RESULTS:
+
 The next step is to prove that =eqv= is in fact an equivalence
 relation, which is to say, it is reflexive, symmetric and
 transitive. We can prove these three facts in a convenient and
@@ -579,6 +895,9 @@ private theorem is_equivalence (α : Type u) : equivalence (@eqv α) :=
 mk_equivalence (@eqv α) (@eqv.refl α) (@eqv.symm α) (@eqv.trans α)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 We open the namespaces =or= and =eq= to be able to use =or.inl=,
 =or.inr=, and =eq.trans= more conveniently.
 
@@ -630,6 +949,9 @@ namespace uprod
 end uprod
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Notice that we locally define the notation ={a₁, a₂}= for ordered
 pairs as =⟦(a₁, a₂)⟧=. This is useful for illustrative purposes, but
 it is not a good idea in general, since the notation will shadow other
@@ -685,6 +1007,8 @@ namespace uprod
 -- END
 end uprod
 #+END_SRC
+
+#+RESULTS:
 
 To complete the example, given =a : α= and =u : uprod α=, we define
 the proposition =a ∈ u= which should hold if =a= is one of the
@@ -772,6 +1096,8 @@ namespace uprod
 end uprod
 #+END_SRC
 
+#+RESULTS:
+
 For convenience, the standard library also defines =quotient.lift₂=
 for lifting binary functions, and =quotient.ind₂= for induction on two
 variables.
@@ -787,9 +1113,9 @@ to =f₂ a=. Thus application gives rise to a function
 =extfun_app ⟦f⟧= is definitionally equal to =λ x, f x=, which is in turn
 definitionally equal to =f=. So, when =f₁= and =f₂= are extenionally
 equal, we have the following chain of equalities:
-#+BEGIN_SRC lean_text
+#+BEGIN_EXAMPLE
   f₁ = extfun_app ⟦f₁⟧ = extfun_app ⟦f₂⟧ = f₂
-#+END_SRC  
+#+END_EXAMPLE
 As a result, =f₁= is equal to =f₂=.
 
 # TODO: add exercises, and make it an exercise to work out the
@@ -813,6 +1139,9 @@ class inductive nonempty (α : Sort u) : Prop
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Because =nonempty α= has type =Prop= and its constructor contains
 data, it can only eliminate to =Prop=. In fact, =nonempty α= is
 equivalent to =∃ x : α, true=:
@@ -824,6 +1153,9 @@ example (α : Type u) : nonempty α ↔ ∃ x : α, true :=
 iff.intro (λ ⟨a⟩, ⟨a, trivial⟩) (λ ⟨a, h⟩, ⟨a⟩)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Our axiom of choice is now expressed simply as follows:
 #+BEGIN_SRC lean
 namespace hide
@@ -835,6 +1167,9 @@ axiom choice {α : Sort u} : nonempty α → α
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Given only the assertion =h= that =α= is nonempty, =choice h=
 magically produces an element of =α=. Of course, this blocks any
 meaningful computation: by the interpretation of =Prop=, =h= contains
@@ -860,6 +1195,9 @@ noncomputable theorem indefinite_description {α : Sort u} (p : α → Prop) :
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Because it depends on =choice=, Lean cannot generate bytecode for
 =indefinite_description=, and so requires us to mark the definition as
 =noncomputable=. Also in the =classical= namespace, the function =some= and the
@@ -880,6 +1218,9 @@ subtype.has_property (indefinite_description p h)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 The =choice= principle also erases the distinction between the
 property of being =nonempty= and the more constructive property of
 being =inhabited=:
@@ -892,6 +1233,8 @@ noncomputable theorem inhabited_of_nonempty {α : Type u} : nonempty α → inha
 λ h, choice (let ⟨a⟩ := h in ⟨⟨a⟩⟩)
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 In the next section, we will see that =propext=, =funext=, and
 =choice=, taken together, imply the law of the excluded middle and the
@@ -906,6 +1249,10 @@ check (@strong_indefinite_description :
         Π {α : Sort u} (p : α → Prop), nonempty α → {x // (∃ (y : α), p y) → p x})
 -- END
 #+END_SRC
+
+#+RESULTS:
+: strong_indefinite_description : Π {a : Sort u} (p : a → Prop), nonempty a → {x // (∃ (y : a), p y) → p x}
+
 Assuming the ambient type =α= is nonempty,
 =strong_indefinite_description p= produces an element of =α=
 satisfying =p= if there is one. The data component of this definition
@@ -922,6 +1269,10 @@ check (@epsilon_spec : ∀ {a : Sort u} {p : a → Prop} (hex : ∃ (y : a), p y
 -- END
 #+END_SRC
 
+#+RESULTS:
+: epsilon : Π {a : Sort u} [h : nonempty a], (a → Prop) → a
+: epsilon_spec : ∀ {a : Sort u} {p : a → Prop} (hex : ∃ (y : a), p y), p (epsilon p)
+
 ** The Law of the Excluded Middle
 
 The law of the excluded middle is the following
@@ -933,6 +1284,10 @@ check (@em : ∀ (p : Prop), p ∨ ¬p)
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: em : ∀ (p : Prop), p ∨ ¬p
+
 [[http://en.wikipedia.org/wiki/Diaconescu%27s_theorem][Diaconescu's theorem]] states that the axiom of choice is sufficient to
 derive the law of excluded middle. More precisely, it shows that the
 law of the excluded middle follows from =classical.choice=, =propext=,
@@ -955,6 +1310,9 @@ lemma exV : ∃ x, V x := ⟨false, or.inl rfl⟩
 
 end diaconescu
 #+END_SRC
+
+#+RESULTS:
+
 If =p= is true, then every element of =Prop= is in both =U= and
 =V=. If =p= is false, then =U= is the singleton =true=, and =V= is the
 singleton =false=.
@@ -982,6 +1340,9 @@ lemma v_def : V v := some_spec exV
 
 end diaconescu
 #+END_SRC
+
+#+RESULTS:
+
 Each of =U= and =V= is a disjunction, so =u_def= and =v_def= represent
 four cases. In one of these cases, =u = true= and =v = false=, and in
 all the other cases, =p= is true. Thus we have:
@@ -1016,6 +1377,9 @@ or.elim u_def
 
 end diaconescu
 #+END_SRC
+
+#+RESULTS:
+
 On the other hand, if =p= is true, then, by function extensionality
 and propositional extensionality, =U= and =V= are equal. By the
 definition of =u= and =v=, this implies that they are equal as well.
@@ -1064,6 +1428,9 @@ show u = v, from h₀ _ _
 -- END
 end diaconescu
 #+END_SRC
+
+#+RESULTS:
+
 Putting these last two facts together yields the desired conclusion:
 #+BEGIN_SRC lean
 open classical
@@ -1118,6 +1485,8 @@ have h : ¬(u = v) → ¬p, from mt p_implies_uv,
 end diaconescu
 #+END_SRC
 
+#+RESULTS:
+
 Consequences of excluded middle include double-negation elimination,
 proof by cases, and proof by contradiction, all of which are described
 in [[file:03_Propositions_and_Proofs.org::#Classical_Logic][Section 3.5]]. The law of the excluded middle and propositional extensionality imply
@@ -1135,6 +1504,9 @@ or.elim (em a)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Together with choice, we also get the stronger principle that every
 proposition is decidable. Recall that the class of =decidable=
 propositions is defined as follows:
@@ -1149,6 +1521,9 @@ class inductive decidable (p : Prop)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 In contrast to =p ∨ ¬ p=, which can only eliminate to =Prop=, the type
 =decidable p= is equivalent to the sum type =p ⊕ ¬ p=, which can
 elminate to any type. It is this data that is needed to write an
@@ -1179,6 +1554,9 @@ funext (take a,
   calc linv f (f a) = some ex :  dif_pos ex
              ...    = a       :  inj feq)
 #+END_SRC
+
+#+RESULTS:
+
 From a classical point of view, =linv= is a function. From a
 constructive point of view, it is unacceptable; because there is no way
 to implement such a function in general, the construction is not

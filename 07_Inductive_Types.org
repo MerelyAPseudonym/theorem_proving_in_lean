@@ -20,13 +20,13 @@ everything else follows from those.
 
 Intuitively, an inductive type is built up from a specified list of
 constructors. In Lean, the syntax for specifying such a type is as follows:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 inductive foo : Type
 | constructor₁ : ... → foo
 | constructor₂ : ... → foo
 ...
 | constructorₙ : ... → foo
-#+END_SRC
+#+END_EXAMPLE
 The intuition is that each constructor specifies a way of building new
 objects of =foo=, possibly from previously constructed values. The type
 =foo= consists of nothing more than the objects that are constructed in
@@ -77,6 +77,9 @@ inductive weekday : Type
 | friday : weekday
 | saturday : weekday
 #+END_SRC
+
+#+RESULTS:
+
 The =inductive= command creates a new type, =weekday=. The
 constructors all live in the =weekday= namespace.
 #+BEGIN_SRC lean
@@ -99,6 +102,13 @@ check sunday
 check monday
 -- END
 #+END_SRC
+
+#+RESULTS:
+: weekday.sunday : weekday
+: weekday.monday : weekday
+: sunday : weekday
+: monday : weekday
+
 Think of =sunday=, =monday=, ..., =saturday= as being distinct elements of
 =weekday=, with no other distinguishing properties. The elimination
 principle, =weekday.rec=, is defined along with the type
@@ -135,6 +145,12 @@ eval number_of_day weekday.monday
 eval number_of_day weekday.tuesday
 -- END
 #+END_SRC
+
+#+RESULTS:
+: 1
+: 2
+: 3
+
 The first (explicit) argument to =rec_on= is the element being "analyzed." The
 next seven arguments are the values corresponding to the seven
 constructors. Note that =number_of_day weekday.sunday= evaluates to
@@ -160,6 +176,8 @@ def number_of_day (d : weekday) : ℕ :=
 weekday.cases_on d 1 2 3 4 5 6 7
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 It is often useful to group definitions and theorems related to a
 structure in a namespace with the same name. For example, we can put
@@ -203,6 +221,15 @@ eval number_of_day sunday
 check cases_on
 -- END
 #+END_SRC
+
+#+RESULTS:
+: 1
+: 1
+: cases_on :
+:   Π (n : weekday),
+:     ?M_1 sunday →
+:     ?M_1 monday → ?M_1 tuesday → ?M_1 wednesday → ?M_1 thursday → ?M_1 friday → ?M_1 saturday → ?M_1 n
+
 We can define functions from =weekday= to =weekday=:
 #+BEGIN_SRC lean
 inductive weekday : Type
@@ -229,6 +256,10 @@ namespace weekday
 end weekday
 -- END
 #+END_SRC
+
+#+RESULTS:
+: thursday
+: tuesday
 
 How can we prove the general theorem that =next (previous d) = d= for
 any weekday =d=? The induction principle parallels the recursion
@@ -264,6 +295,8 @@ namespace weekday
 -- END
 end weekday
 #+END_SRC
+
+#+RESULTS:
 
 In fact, =induction_on= is just a special case of =rec_on= where the
 target type is an element of =Prop=. In other words, under the
@@ -301,6 +334,9 @@ namespace weekday
 -- END
 end weekday
 #+END_SRC
+
+#+RESULTS:
+
 While the =show= commands make the proof clearer and more
 readable, they are not necessary:
 #+BEGIN_SRC lean
@@ -327,6 +363,8 @@ namespace weekday
 end weekday
 #+END_SRC
 
+#+RESULTS:
+
 Some fundamental data types in the Lean library are instances of
 enumerated types.
 #+BEGIN_SRC lean
@@ -347,6 +385,9 @@ inductive bool : Type
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 (To run these examples, we put them in a namespace called =hide=, so
 that a name like =bool= does not conflict with the =bool= in the
 standard library. This is necessary because these types are part of
@@ -373,6 +414,9 @@ bool.cases_on b1
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Similarly, most identities can be proved by introducing suitable case
 splits, and then using =rfl=.
 
@@ -399,6 +443,9 @@ inductive sum (α : Type u) (β : Type v)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Notice that we do not include the types =α= and =β= in the target of
 the constructors. For the moment, ignore the annotation ={}= after the
 constructors =inl= and =inr=; we will explain that below. In the
@@ -420,6 +467,9 @@ def snd {α : Type u} {β : Type v} (p : α × β) : β :=
 prod.rec_on p (λ a b, b)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 The function =fst= takes a pair, =p=. Applying the recursor
 =prod.rec_on p (fun a b, a)= interprets =p= as a pair, =prod.mk a b=,
 and then uses the second argument to determine what to do with =a= and
@@ -436,6 +486,11 @@ prod.rec_on p (λ b n, cond b (2 * n) (2 * n + 1))
 eval prod_example (tt, 3)
 eval prod_example (ff, 3)
 #+END_SRC
+
+#+RESULTS:
+: 6
+: 7
+
 The =cond= function is a boolean conditional: =cond b t1 t2= return
 =t1= if =b= is true, and =t2= otherwise. (It has the same effect as
 =bool.rec_on b t2 t1=.) The function =prod_example= takes a pair
@@ -458,6 +513,11 @@ eval sum_example (sum.inl 3)
 eval sum_example (sum.inr 3)
 -- END
 #+END_SRC
+
+#+RESULTS:
+: 6
+: 7
+
 This example is similar to the previous one, but now an input to
 =sum_example= is implicitly either of the form =inl n= or =inr n=. In
 the first case, the function returns =2 * n=, and the second case, it
@@ -495,6 +555,9 @@ mk :: (fst : α) (snd : β)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 The =structure= command simultaneously introduces the inductive type,
 =prod=, its constructor, =mk=, the usual eliminators (=rec=,
 =rec_on=), as well as the projections, =fst= and =snd=, as defined
@@ -512,6 +575,10 @@ def yellow := color.mk 255 255 0
 eval color.red yellow
 -- END
 #+END_SRC
+
+#+RESULTS:
+: 255
+
 The definition of =yellow= forms the record with the three values
 shown, and the projection =color.red= returns the red component. The
 =structure= command is especially useful for defining algebraic
@@ -526,6 +593,9 @@ structure Semigroup :=
 (mul : carrier → carrier → carrier)
 (mul_assoc : ∀ a b c, mul (mul a b) c = mul a (mul b c))
 #+END_SRC
+
+#+RESULTS:
+
 We will see more examples in [[file:09_Structures_and_Records.org::#Structures_and_Records][Chapter 9]].
 
 Notice that the product type depends on parameters =α β : Type= which
@@ -551,6 +621,9 @@ inductive sum (α : Type u) (β : Type v)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 αs a result, the argument =α= to =inl= and the argument =β= to
 =inr= are left implicit.
 
@@ -568,6 +641,9 @@ inductive sigma {α : Type u} (β : α → Type v)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Two more examples of inductive types in the library are the
 following:
 #+BEGIN_SRC lean
@@ -586,6 +662,9 @@ inductive inhabited (α : Type u)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 In the semantics of dependent type theory, there is no built-in notion
 of a partial function. Every element of a function type =α → β= or a
 Pi type =Π x : α, β= is assumed to have a value at every input. The
@@ -633,6 +712,9 @@ inductive or (a b : Prop) : Prop
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 You should think about how these give rise to the introduction and
 elimination rules that you have already seen. There are rules that
 govern what the eliminator of an inductive type can eliminate /to/,
@@ -660,6 +742,9 @@ def exists.intro := @Exists.intro
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Keep in mind that the notation =∃ x : α, p= is syntactic sugar for
 =Exists (λ x : α, p)=.
 
@@ -684,6 +769,9 @@ inductive subtype {α : Type u} (p : α → Prop)
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 The notation ={x : α | p}= is syntactic sugar for =subtype (λ x : α,
 p)=. It is modeled after subset notation in set theory: the idea is
 that ={x : α | p}= denotes the collection of elements of =α= that have
@@ -708,6 +796,9 @@ inductive nat : Type
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 There are two constructors. We start with =zero : nat=; it takes no
 arguments, so we have it from the start. In contrast, the constructor
 =succ= can only be applied to a previously constructed =nat=. Applying
@@ -739,11 +830,15 @@ check @nat.rec_on
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+: nat.rec_on : Π {C : nat → Sort u_1} (n : nat), C nat.zero → (Π (a : nat), C a → C (nat.succ a)) → C n
+
 we find the following:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
   Π {C : nat → Type} (n : nat),
     C nat.zero → (Π (a : nat), C a → C (nat.succ a)) → C n
-#+END_SRC
+#+END_EXAMPLE
 The implicit argument, =C=, is the codomain of the function being
 defined. In type theory it is common to say =C= is the =motive= for
 the elimination/recursion.  The next argument, =n : nat=, is the input
@@ -778,6 +873,9 @@ end nat
 end hide
 #+END_SRC
 
+#+RESULTS:
+: succ (succ (succ zero))
+
 It is useful to put such definitions into a namespace, =nat=. We can
 then go on to define familiar notation in that namespace. The two
 defining equations for addition now hold definitionally:
@@ -803,6 +901,9 @@ end nat
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 We will explain how the =instance= command works in [[file:10_Type_Classes.org::#Type_Classes][Chapter 10]]. In the
 examples below, we will henceforth use Lean's version of the natural
 numbers.
@@ -831,6 +932,8 @@ nat.induction_on n
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
 
 In the example above, we encourage you to replace =induction_on= with
 =rec_on= and observe that the theorem is still accepted by Lean. As we
@@ -862,6 +965,8 @@ nat.induction_on k
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
 
 For another example, suppose we try to prove the commutativity of
 addition. Choosing induction on the second argument, we might begin as
@@ -896,6 +1001,10 @@ nat.induction_on n
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004dPg:17:8: warning: declaration 'hide.add_comm' uses sorry
+
 At this point, we see that we need another supporting fact, namely,
 that =succ (n + m) = succ n + m=. We can prove this by induction on
 =m=:
@@ -929,6 +1038,9 @@ nat.induction_on n
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 We can then replace the =sorry= in the previous proof with =succ_add=.
 
 As an exercise, try defining other operations on the natural numbers,
@@ -961,6 +1073,9 @@ begin
   apply hs       -- goal is a : ℕ ⊢ p (succ a)
 end
 #+END_SRC
+
+#+RESULTS:
+
 There are extra bells and whistles. For one thing, =cases= allows you
 to choose the names for the arguments to the constructors using a
 =with= clause. In the next example, for example, we choose the name
@@ -983,6 +1098,8 @@ begin
 end
 #+END_SRC
 
+#+RESULTS:
+
 Notice that =cases= can be used to produce data as well as prove
 propositions.
 #+BEGIN_SRC lean
@@ -994,6 +1111,9 @@ end
 example : f 0 = 3 := rfl
 example : f 5 = 7 := rfl
 #+END_SRC
+
+#+RESULTS:
+
 Once again, cases will revert and depedencies in the context, split,
 and then reintroduce them.
 #+BEGIN_SRC lean
@@ -1013,6 +1133,8 @@ def my_tuple : tuple ℕ 3 :=  ⟨[0, 1, 2], rfl⟩
 example : f my_tuple = 7 := rfl
 #+END_SRC
 
+#+RESULTS:
+
 If there are multiple constructors with arguments, you can provide
 =cases= with a list of all the names, arranged sequentially:
 #+BEGIN_SRC lean
@@ -1027,6 +1149,8 @@ begin
   exact e     -- d, e    are in the context
 end
 #+END_SRC
+
+#+RESULTS:
 
 You can also use =cases= with an arbitrary expression. Assuming that
 expression occurs in the goal, the cases tactic will generalize over
@@ -1043,6 +1167,9 @@ begin
   apply hs       -- goal is a : ℕ ⊢ p (succ a)
 end
 #+END_SRC
+
+#+RESULTS:
+
 Think of this as saying "split on cases as to whether =m + 3 * k= is
 zero or the successor of some number." The result is functionally
 equivalent to the following:
@@ -1061,6 +1188,9 @@ begin
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Notice that the expression =m + 3 * k= is erased by generalize; all
 that matters is whether it is of the form =0= or =succ a=. This form
 of =cases= will /not/ revert any hypotheses that also mention the
@@ -1079,6 +1209,9 @@ begin
   exact h₂ hge
 end
 #+END_SRC
+
+#+RESULTS:
+
 The theorem =lt_or_ge m n= says =m < n ∨ m ≥ n=, and it is natural to
 think of the proof above as splitting on these two cases. In the first
 branch, we have the hypothesis =h₁ : m < n=, and in the second we have
@@ -1094,6 +1227,9 @@ begin
   exact h₂ hge
 end
 #+END_SRC
+
+#+RESULTS:
+
 After the first two lines, we have =h : m < n ∨ m ≥ n= as a
 hypothesis, and we simply do cases on that.
 
@@ -1110,6 +1246,10 @@ begin
   right, exact hne
 end
 #+END_SRC
+
+#+RESULTS:
+: nat.sub_self : ∀ (n : ℕ), n - n = 0
+
 Remember that if you =open classical=, you can use the law of the
 excluded middle for any proposition at all. But using type class
 inference (see [[file:10_Type_Classes.org::#Type_Classes][Chapter 10]]), Lean can actually find the relevant
@@ -1124,6 +1264,9 @@ end
 example : f 5 7 = 3 := rfl
 example : f 10 2 = 7 := rfl
 #+END_SRC
+
+#+RESULTS:
+
 Aspects of computability will be discussed in a later chapter.
 
 # TODO(Jeremy): add a reference to this.
@@ -1213,6 +1356,9 @@ end list
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 A list of elements of type =α= is either the empty list, =nil=, or an
 element =h : α= followed by a list =t : list α=. We define the
 notation =h :: t= to represent the latter. The first element, =h=, is
@@ -1248,6 +1394,11 @@ end list
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+: [1,2,3,4,5] : list ℕ
+: [1,2,3,4,5] : list num
+
 In the first =check=, Lean assumes that =[1, 2, 3, 4, 5]= is a list of
 natural numbers. The =(t : list num)= expression forces Lean to interpret =t= as
 a list of numerals.
@@ -1288,6 +1439,11 @@ end list
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004swQ:26:8: warning: declaration 'hide.list.append_nil' uses sorry
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004swQ:28:8: warning: declaration 'hide.list.append_assoc' uses sorry
+
 Try also defining the function =length : Π α : Type, list α → nat=
 that returns the length of a list, and prove that it behaves as
 expected (for example, =length (s ++ t) = length s + length t=).
@@ -1298,6 +1454,9 @@ inductive binary_tree
 | leaf : binary_tree
 | node : binary_tree → binary_tree → binary_tree
 #+END_SRC
+
+#+RESULTS:
+
 In fact, we can even define the type of countably branching trees:
 #+BEGIN_SRC lean
 inductive cbtree
@@ -1314,6 +1473,8 @@ sup (λ n, nat.rec_on n leaf (λ n t, succ t))
 
 end cbtree
 #+END_SRC
+
+#+RESULTS:
 
 # TODO (JDA): I got tired here, but more can be ported from the parts
 # that are commented out below.

@@ -37,15 +37,17 @@ instances of a given structure.
 The structure command is essentially a "front end" for defining
 inductive data types. Every =structure= declaration introduces a
 namespace with the same name. The general form is as follows:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
   structure <name> <parameters> <parent-structures> : Type :=
     <constructor> :: <fields>
-#+END_SRC
+#+END_EXAMPLE
 Most parts are optional. Here is an example:
 #+BEGIN_SRC lean
 structure point (α : Type) :=
 mk :: (x : α) (y : α)
 #+END_SRC
+
+#+RESULTS:
 
 Values of type =point= are created using =point.mk a b=, and the
 fields of a point =p= are accessed using =point.x p= and =point.y
@@ -64,6 +66,14 @@ check point.x            -- a projection / field accessor
 check point.y            -- a projection / field accessor
 -- END
 #+END_SRC
+
+#+RESULTS:
+: point : Type → Type
+: point.rec_on : Π (n : point ?M_1), (Π (x y : ?M_1), ?M_2 {x := x, y := y}) → ?M_2 n
+: point.induction_on : ∀ (n : point ?M_1), (∀ (x y : ?M_1), ?M_2 {x := x, y := y}) → ?M_2 n
+: point.x : point ?M_1 → ?M_1
+: point.y : point ?M_1 → ?M_1
+
 You can obtain the complete list of generated constructions using the
 command =print prefix=.
 #+BEGIN_SRC lean
@@ -74,6 +84,23 @@ mk :: (x : α) (y : α)
 print prefix point
 -- END
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+point : Type → Type
+point.cases_on : Π {α : Type} {C : point α → Sort l} (n : point α), (Π (x y : α), C {x := x, y := y}) → C n
+point.destruct : Π {α : Type} {C : point α → Sort l} (n : point α), (Π (x y : α), C {x := x, y := y}) → C n
+point.has_sizeof_inst : Π (α : Type) [α_inst : has_sizeof α], has_sizeof (point α)
+point.induction_on : ∀ {α : Type} {C : point α → Prop} (n : point α), (∀ (x y : α), C {x := x, y := y}) → C n
+point.mk : Π {α : Type}, α → α → point α
+point.mk.sizeof_spec : ∀ (α : Type) [α_inst : has_sizeof α] (x y : α), sizeof {x := x, y := y} = 1 + sizeof x + sizeof y
+point.no_confusion : Π {α : Type} {P : Sort l} {v1 v2 : point α}, v1 = v2 → point.no_confusion_type P v1 v2
+point.no_confusion_type : Π {α : Type}, Sort l → point α → point α → Sort l
+point.rec : Π {α : Type} {C : point α → Sort l}, (Π (x y : α), C {x := x, y := y}) → Π (n : point α), C n
+point.rec_on : Π {α : Type} {C : point α → Sort l} (n : point α), (Π (x y : α), C {x := x, y := y}) → C n
+point.x : Π {α : Type}, point α → α
+point.y : Π {α : Type}, point α → α
+#+end_example
 
 Here are some simple theorems and expressions that use the generated
 constructions. As usual, you can avoid the prefix =point= by using
@@ -96,6 +123,10 @@ rfl
 -- END
 #+END_SRC
 
+#+RESULTS:
+: 10
+: 20
+
 Given =p : point nat=, the notation =p^.x= is shorthand for =point.x p=.
 This provides a convenient way of accessing the fields of a structure.
 #+BEGIN_SRC lean
@@ -111,6 +142,11 @@ eval  p^.y -- 20
 -- END
 #+END_SRC
 
+#+RESULTS:
+: p^.x : ℕ
+: 10
+: 20
+
 If the constructor is not provided, then a constructor is named =mk=
 by default.
 #+BEGIN_SRC lean
@@ -124,11 +160,16 @@ check prod.mk
 end hide
 #+END_SRC
 
+#+RESULTS:
+: prod.mk : ?M_1 → ?M_2 → prod ?M_1 ?M_2
+
 The keyword =record= is an alias for =structure=.
 #+BEGIN_SRC lean
 record point (α : Type) :=
 mk :: (x : α) (y : α)
 #+END_SRC
+
+#+RESULTS:
 
 You can provide universe levels explicitly. The annotations in the
 next example force the parameters =α= and =β= to be types from the
@@ -146,6 +187,10 @@ check prod.mk
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: prod.mk.{u_1} : ?M_1 → ?M_2 → prod.{u_1} ?M_1 ?M_2
+
 The =set_option= command above instructs Lean to display the universe
 levels.
 
@@ -171,6 +216,9 @@ check (⟨1, 2⟩ : prod nat nat)
 end hide
 #+END_SRC
 
+#+RESULTS:
+: {pr1 := 1, pr2 := 2} : prod ℕ ℕ
+
 ** Objects
 
 We have been using constructors to create elements of a structure (or
@@ -178,11 +226,11 @@ record) type. For structures containing many fields, this is often
 inconvenient, because we have to remember the order in which the
 fields were defined. Lean therefore provides the following alternative
 notations for defining elements of a structure type.
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
   { structure-name . <field-name> := <expr>)* }
   or
   {<field-name> := <expr>)*}
-#+END_SRC
+#+END_EXAMPLE
 The prefix =structure-name .= can be omitted whenever the name of the structure
 can be inferred from the expected type.
 For example, we use this notation to define "points." The
@@ -200,6 +248,11 @@ example : point nat :=
 { y := 20, x := 10 }
 #+END_SRC
 
+#+RESULTS:
+: {x := 10, y := 20} : point ℕ
+: {x := 10, y := 20} : point ℕ
+: {x := 10, y := 20} : point ℕ
+
 If the value of a field is not specified, Lean tries to infer it.
 If the unspecified fields cannot be inferred, Lean signs an error
 indicating the corresponding placeholder could not be synthesized.
@@ -210,13 +263,16 @@ mk :: {α : Type} {β : Type} (a : α) (b : β)
 check { my_struct . a := 10, b := true }
 #+END_SRC
 
+#+RESULTS:
+: {α := ℕ, β := Prop, a := 10, b := true} : my_struct
+
 /Record update/ is another common operation. It consists in creating
 a new record object by modifying the value of one or more fields.
 Lean provides a variation of the notation described above for
 record updates.
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
   { record-obj with <field-name> := <expr>)* }
-#+END_SRC
+#+END_EXAMPLE
 The semantics is simple: record objects =<record-obj>=
 provide the values for the unspecified fields. If more than one record
 object is provided, then they are visited in order until Lean finds
@@ -234,6 +290,10 @@ eval {p with y := 3}
 eval {p with x := 3}
 #+END_SRC
 
+#+RESULTS:
+: {x := 1, y := 3}
+: {x := 3, y := 2}
+
 ** Inheritance
 
 We can /extend/ existing structures by adding new fields.
@@ -248,6 +308,8 @@ inductive color
 structure color_point (α : Type) extends point α :=
 mk :: (c : color)
 #+END_SRC
+
+#+RESULTS:
 
 We can "rename" fields inherited from parent structures using the
 =renaming= clause.
@@ -267,6 +329,11 @@ check point3.z
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: point3.x : point3 ?M_1 → ?M_1
+: point3.y : point3 ?M_1 → ?M_1
+: point3.z : point3 ?M_1 → ?M_1
 
 In the next example, we define a structure using multiple
 inheritance, and then define an object using objects of the parent
@@ -288,3 +355,5 @@ def rgp : red_green_point nat :=
 example : rgp^.x   = 10 := rfl
 example : rgp^.red = 200 := rfl
 #+END_SRC
+
+#+RESULTS:

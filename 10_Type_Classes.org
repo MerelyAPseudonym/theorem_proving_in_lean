@@ -49,6 +49,11 @@ eval foo
 
 example : foo = 1 := rfl
 #+END_SRC
+
+#+RESULTS:
+: foo : Π [x : ℕ], ℕ
+: 1
+
 Here we declare =nat= to be a class with a "canonical" instance
 =1=. Then we declare =foo= to be, essentially, the identity function
 on the natural numbers, but we mark the argument implicit, and
@@ -87,6 +92,11 @@ example : foo ≠ 1 :=
 λ h : 2 = 1, nat.no_confusion h (λ h : 1 = 0, nat.no_confusion h)
 -- END
 #+END_SRC
+
+#+RESULTS:
+: 1
+: 2
+
 Now the "same" expression =foo= evaluates to =2=. Whereas before we
 could prove =foo = 1=, now we can prove =foo ≠ 1=, because the
 inferred implicit argument has changed. When searching for a suitable
@@ -142,6 +152,9 @@ class inhabited (α : Type) :=
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 An element of the class =inhabited α= is simply an expression of the
 form =inhabited.mk a=, for some element =a : α=.
 The projection =inhabited.value= will allow us to "extract" such an element of =α=
@@ -171,6 +184,8 @@ inhabited.mk ()
 end hide
 #+END_SRC
 
+#+RESULTS:
+
 In the Lean standard library, we regularly use the anonymous constructor
 when defining instances. It is particularly useful when the class name is long.
 
@@ -196,6 +211,8 @@ instance unit_inhabited : inhabited unit :=
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
 
 This arranges things so that when type class inference is asked to
 infer an element =?M : Prop=, it can find the element =true= to assign
@@ -228,6 +245,8 @@ definition default (α : Type) [s : inhabited α] : α :=
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
 
 This has the effect that given a type expression =α=, whenever we
 write =default α=, we are really writing =default α ?s=, leaving the
@@ -262,6 +281,13 @@ check default unit    -- unit
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: default Prop : Prop
+: default ℕ : ℕ
+: default bool : bool
+: default unit : unit
+
 In general, whenever we write =default α=, we are asking the
 elaborator to synthesize an element of type =α=.
 
@@ -294,6 +320,12 @@ eval default unit    -- ()
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: true
+: 0
+: tt
+: ()
 
 Sometimes we want to think of the default element of a type as being
 an /arbitrary/ element, whose specific value should not play a role in
@@ -344,6 +376,9 @@ instance prod_inhabited {α β : Type} [inhabited α] [inhabited β]
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 With this added to the earlier instance declarations, type class
 instance can infer, for example, a default element of =nat × bool × unit=:
 #+BEGIN_SRC lean
@@ -377,6 +412,11 @@ eval default (nat × bool)
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: default (ℕ × bool) : ℕ × bool
+: (0, tt)
+
 Given the expression =default (nat × bool)=, the elaborator is
 called on to infer an implicit argument =?M : inhabited (nat × bool)=.
 The instance =prod_inhabited= reduces this to inferring
@@ -420,6 +460,11 @@ eval default (nat → nat × bool)
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: default (ℕ → ℕ × bool) : ℕ → ℕ × bool
+: λ (a : ℕ), (0, tt)
+
 In this case, type class inference finds the default element =λ (a : nat), (0, tt)=.
 
 As an exercise, try defining default instances for other types, such
@@ -447,6 +492,9 @@ class inductive decidable (p : Prop) : Type
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Logically speaking, having an element =t : decidable p= is stronger
 than having an element =t : p ∨ ¬p=; it enables us to define values of
 an arbitrary type depending on the truth value of =p=. For example,
@@ -463,6 +511,8 @@ decidable.rec_on d (λ hnc, e) (λ hc, t)
 end hide
 #+END_SRC
 
+#+RESULTS:
+
 The standard library also contains a variant of =ite= called =dite=,
 the dependent if-then-else expression. It is defined as follows:
 #+BEGIN_SRC lean
@@ -474,6 +524,9 @@ decidable.rec_on d (λ hnc : ¬ c, e hnc) (λ hc : c, t hc)
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 That is, in =dite c t e=, we can assume =hc : c= in the "then" branch,
 and =hnc : ¬ c= in the "else" branch.  To make =dite= more convenient
 to use, Lean allows us to write =if h : c then t else e= instead of
@@ -493,6 +546,13 @@ check @or.decidable
 check @not.decidable
 check @implies.decidable
 #+END_SRC
+
+#+RESULTS:
+: and.decidable : Π {p q : Prop} [_inst_1 : decidable p] [_inst_2 : decidable q], decidable (p ∧ q)
+: or.decidable : Π {p q : Prop} [_inst_1 : decidable p] [_inst_2 : decidable q], decidable (p ∨ q)
+: not.decidable : Π {p : Prop} [_inst_1 : decidable p], decidable (¬p)
+: implies.decidable : Π {p q : Prop} [_inst_1 : decidable p] [_inst_2 : decidable q], decidable (p → q)
+
 Thus we can carry out definitions by cases on decidable predicates on
 the natural numbers:
 #+BEGIN_SRC lean
@@ -504,6 +564,12 @@ if x < a ∨ x > b then 0 else 1
 set_option pp.implicit true
 print definition step
 #+END_SRC
+
+#+RESULTS:
+: definition step : ℕ → ℕ → ℕ → ℕ
+: λ (a b x : ℕ),
+:   @ite (x < a ∨ x > b) (@or.decidable (x < a) (x > b) (nat.decidable_lt x a) (nat.decidable_lt b x)) ℕ 0 1
+
 Turning on implicit arguments shows that the elaborator has inferred
 the decidability of the proposition =x < a ∨ x > b=, simply by
 applying appropriate instances.
@@ -550,6 +616,9 @@ local notation a `+` b := add a b
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 The class =has_add α= is supposed to be inhabited exactly when there
 is an appropriate addition function for =α=. The =add= function is
 designed to find an instance of =has_add α= for the given type, =α=,
@@ -579,6 +648,11 @@ check tt + ff  -- bool
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: 2 + 2 : ℕ
+: tt + ff : bool
+
 # In the example above, we expose the coercions in namespaces =nat=
 # and =int=, so that we can use numerals. If we opened these namespace
 # outright, the symbol =+= would be ad-hoc overloaded. This would result
@@ -622,6 +696,11 @@ eval  (1, 2) + (3, 4)    -- (4, 6)
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: (1, 2) + (3, 4) : ℕ × ℕ
+: (4, 6)
+
 We can similarly define pointwise addition of functions:
 #+BEGIN_SRC lean
 namespace hide
@@ -651,6 +730,11 @@ eval (λ x : nat, 1) + (λ x, 2)    -- λ (x : ℕ), 3
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+: (λ (x : ℕ), 1) + λ (x : ℕ), 2 : ℕ → ℕ
+: λ (x : ℕ), 3
+
 As an exercise, try defining instances of =has_add= for lists,
 and show that they have the work as expected.
 
@@ -664,6 +748,136 @@ are currently in scope:
 print classes
 print instances inhabited
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+add_comm_group : Type u → Type u
+add_comm_monoid : Type u → Type u
+add_comm_semigroup : Type u → Type u
+add_group : Type u → Type u
+add_left_cancel_semigroup : Type u → Type u
+add_monoid : Type u → Type u
+add_right_cancel_semigroup : Type u → Type u
+add_semigroup : Type u → Type u
+alternative : (Type u → Type v) → Type (max (u+1) v)
+applicative : (Type u → Type v) → Type (max (u+1) v)
+comm_group : Type u → Type u
+comm_monoid : Type u → Type u
+comm_ring : Type u → Type u
+comm_semigroup : Type u → Type u
+comm_semiring : Type u → Type u
+decidable : Prop → Type
+decidable_linear_order : Type u → Type u
+decidable_linear_ordered_cancel_comm_monoid : Type u → Type u
+decidable_linear_ordered_comm_group : Type u → Type u
+decidable_linear_ordered_comm_ring : Type u → Type u
+decidable_linear_ordered_semiring : Type u → Type u
+discrete_field : Type u → Type u
+discrete_linear_ordered_field : Type u → Type u
+distrib : Type u → Type u
+division_ring : Type u → Type u
+field : Type u → Type u
+functor : (Type u → Type v) → Type (max (u+1) v)
+group : Type u → Type u
+has_add : Type u → Type u
+has_andthen : Type u → Type u
+has_append : Type u → Type u
+has_coe : Sort u → Sort v → Sort (max 1 (imax u v))
+has_coe_t : Sort u → Sort v → Sort (max 1 (imax u v))
+has_coe_t_aux : Sort u → Sort v → Sort (max 1 (imax u v))
+has_coe_to_fun : Sort u → Sort (max u (v+1))
+has_coe_to_sort : Sort u → Type (max u (v+1))
+has_div : Type u → Type u
+has_dvd : Type u → Type u
+has_emptyc : Type u → Type u
+has_insert : out_param Type u → Type v → Type (max u v)
+has_inter : Type u → Type u
+has_inv : Type u → Type u
+has_le : Type u → Type u
+has_lift : Sort u → Sort v → Sort (max 1 (imax u v))
+has_lift_t : Sort u → Sort v → Sort (max 1 (imax u v))
+has_lt : Type u → Type u
+has_mem : out_param Type u → Type v → Type (max u v)
+has_mod : Type u → Type u
+has_mul : Type u → Type u
+has_neg : Type u → Type u
+has_one : Type u → Type u
+has_ordering : Type → Type
+has_quote : Type → Type
+has_sdiff : Type u → Type u
+has_sep : out_param Type u → Type v → Type (max u v)
+has_sizeof : Sort u → Sort (max 1 u)
+has_ssubset : Type u → Type u
+has_sub : Type u → Type u
+has_subset : Type u → Type u
+has_to_format : Type u → Type u
+has_to_pexpr : Type u → Type u
+has_to_string : Type u → Type u
+has_to_tactic_format : Type u → Type u
+has_union : Type u → Type u
+has_zero : Type u → Type u
+inhabited : Sort u → Sort (max 1 u)
+integral_domain : Type u → Type u
+is_associative : Π (α : Type u), (α → α → α) → Type
+is_commutative : Π (α : Type u), (α → α → α) → Type
+left_cancel_semigroup : Type u → Type u
+linear_order_pair : Type u → Type u
+linear_ordered_comm_ring : Type u → Type u
+linear_ordered_field : Type u → Type u
+linear_ordered_ring : Type u → Type u
+linear_ordered_semiring : Type u → Type u
+linear_strong_order_pair : Type u → Type u
+linear_weak_order : Type u → Type u
+monad : (Type u → Type v) → Type (max (u+1) v)
+monad.has_monad_lift : (Type → Type) → (Type → Type) → Type 1
+monad.has_monad_lift_t : (Type → Type) → (Type → Type) → Type 1
+monad.monad_transformer : (Π (m : Type → Type u_1) [_inst_1 : monad m], Type → Type) → Type (u_1+1)
+monad_fail : (Type u → Type v) → Type (max (u+1) v)
+monoid : Type u → Type u
+mul_zero_class : Type u → Type u
+no_zero_divisors : Type u → Type u
+nonempty : Sort u → Prop
+order_pair : Type u → Type u
+ordered_cancel_comm_monoid : Type u → Type u
+ordered_comm_group : Type u → Type u
+ordered_ring : Type u → Type u
+ordered_semiring : Type u → Type u
+pre_monad : (Type u → Type v) → Type (max (u+1) v)
+right_cancel_semigroup : Type u → Type u
+ring : Type u → Type u
+semigroup : Type u → Type u
+semiring : Type u → Type u
+setoid : Type u → Type u
+strict_order : Type u → Type u
+strong_order_pair : Type u → Type u
+subsingleton : Sort u → Prop
+weak_order : Type u → Type u
+zero_ne_one_class : Type u → Type u
+occurrences.inhabited : inhabited occurrences
+environment.inhabited : inhabited environment
+expr.inhabited : inhabited expr
+level.inhabited : inhabited level
+format.inhabited : inhabited format
+options.inhabited : inhabited options
+name.inhabited : inhabited name
+option.inhabited : Π (α : Type u), inhabited (option α)
+string.inhabited : inhabited string
+char.inhabited : inhabited char
+sum.inhabited_right : Π {α : Type u} {β : Type v} [h : inhabited β], inhabited (α ⊕ β)
+sum.inhabited_left : Π {α : Type u} {β : Type v} [h : inhabited α], inhabited (α ⊕ β)
+unit.inhabited : inhabited unit
+subtype.inhabited : Π {α : Type u} {p : α → Prop} {a : α}, p a → inhabited {x // p x}
+list.inhabited : Π (α : Type u), inhabited (list α)
+nat.inhabited : inhabited ℕ
+prod.inhabited : Π {α : Type u} {β : Type v} [_inst_1 : inhabited α] [_inst_2 : inhabited β], inhabited (α × β)
+num.inhabited : inhabited num
+pos_num.inhabited : inhabited pos_num
+bool.inhabited : inhabited bool
+pi.inhabited : Π (α : Sort u) {β : α → Sort v} [_inst_1 : Π (x : α), inhabited (β x)], inhabited (Π (x : α), β x)
+fun.inhabited : Π (α : Sort u) {β : Sort v} [h : inhabited β], inhabited (α → β)
+prop.inhabited : inhabited Prop
+#+end_example
+
 At times, you may find that the type class inference fails to find an
 expected instance, or, worse, falls into an infinite loop and times
 out. To help debug in these situations, Lean enables you to request a
@@ -671,6 +885,9 @@ trace of the search:
 #+BEGIN_SRC lean
 set_option trace.class_instances true
 #+END_SRC
+
+#+RESULTS:
+
 If you add this to your file in Emacs mode and use =C-c C-x= to run an
 independent Lean process on your file, the output buffer will show a
 trace every time the type class resolution procedure is subsequently
@@ -680,6 +897,9 @@ You can also limit the search depth (the default is 32):
 #+BEGIN_SRC lean
 set_option class.instance_max_depth 5
 #+END_SRC
+
+#+RESULTS:
+
 Remember also that in the Emacs Lean mode, tab completion works in
 =set_option=, to help you find suitable options.
 
@@ -727,6 +947,8 @@ attribute [instance, priority std.priority.default-10] i1
 example : foo.a = 2 := rfl
 #+END_SRC
 
+#+RESULTS:
+
 ** Coercions using Type Classes
 :PROPERTIES:
   :CUSTOM_ID: Coercions_using_Type_Classes
@@ -763,6 +985,10 @@ vm_eval if tt then "hello" else "world"
 vm_eval if ff then "hello" else "world"
 #+END_SRC
 
+#+RESULTS:
+: "hello"
+: "world"
+
 We can define a coercion from =list α= to =set α= as follows:
 #+BEGIN_SRC lean
 universe variable u
@@ -779,6 +1005,9 @@ def l : list nat := [3, 4]
 
 check s ∪ l -- set nat
 #+END_SRC
+
+#+RESULTS:
+: s ∪ ↑l : set ℕ
 
 Coercions are only considered if the given and expected types do not
 contain metavariables at elaboration time. In the following example,
@@ -801,6 +1030,9 @@ def s : set nat  := {1, 2}
 -- check s ∪ [3, 2]
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 We can workaround this issue by using a type ascription.
 #+BEGIN_SRC lean
 universe variable u
@@ -820,6 +1052,10 @@ check s ∪ [(3:nat), 2]
 check s ∪ ([3, 2] : list nat)
 -- END
 #+END_SRC
+
+#+RESULTS:
+: s ∪ ↑[3, 2] : set ℕ
+: s ∪ ↑[3, 2] : set ℕ
 
 In the examples above, you may have noticed the symbol =↑= produced
 by the =check= commands. It is the lift operator, =↑t= is notation
@@ -860,6 +1096,12 @@ check ↑n + i
 -- END
 #+END_SRC
 
+#+RESULTS:
+: s ∪ ↑[3, 2] : set ℕ
+: i + ↑n + ↑m : ℤ
+: i + ↑(n + m) : ℤ
+: ↑n + i : ℤ
+
 The standard library defines a coercion from subtype ={x : α // p x}= to =α=
 as follows:
 #+BEGIN_SRC lean
@@ -871,6 +1113,8 @@ instance coe_subtype {α : Type u} {p : α → Prop} : has_coe {x // p x} α :=
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
 
 Lean will also chain coercions as necessary. Actually, the type class
 =has_coe_t= is the transitive closure of =has_coe=.
@@ -894,6 +1138,10 @@ check ↑s ++ r
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+: ↑s ++ r : list ℤ
+
 It is not an instance of =has_coe= because lists are frequently used for writing programs,
 and we do not want a linear-time operation to be silently introduced by Lean, and potentially mask
 mistakes performed by the user. By forcing the user to write =↑=, she is making her intent
@@ -902,9 +1150,9 @@ clear to Lean.
 Let us now consider the second kind of coercion. By the /class of
 sorts/, we mean the collection of universes =Type u=. A coercion of
 the second kind is of the form
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 c : Π x1 : A1, ..., xn : An, F x1 ... xn → Type u
-#+END_SRC
+#+END_EXAMPLE
 where =F= is a family of types as above. This allows
 us to write =s : t= whenever =t= is of type =F a1 ... an=. In other
 words, the coercion allows us to view the elements of =F a1 ... an= as
@@ -923,6 +1171,9 @@ structure Semigroup : Type (u+1) :=
 instance Semigroup_has_mul (S : Semigroup) : has_mul (S^.carrier) :=
 ⟨S^.mul⟩
 #+END_SRC
+
+#+RESULTS:
+
 In other words, a semigroup consists of a type, =carrier=, and a
 multiplication, =mul=, with the property that the multiplication is
 associative. The =instance= command allows us to write =a * b= instead
@@ -944,6 +1195,10 @@ instance Semigroup_has_mul (S : Semigroup) : has_mul (S^.carrier) :=
 check Semigroup.carrier
 -- END
 #+END_SRC
+
+#+RESULTS:
+: Semigroup.carrier : Semigroup → Type u_1
+
 If we declare this function to be a coercion, then whenever we have a
 semigroup =S : Semigroup=, we can write =a : S= instead of =a : S^.carrier=:
 #+BEGIN_SRC lean
@@ -965,6 +1220,9 @@ example (S : Semigroup) (a b c : S) : (a * b) * c = a * (b * c) :=
 Semigroup.mul_assoc _ a b c
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 It is the coercion that makes it possible to write =(a b c : S)=.
 Note that, we define an instance of =has_coe_to_sort Semigroup=
 instead of =has_coe Semigroup Type=. The reason is that when
@@ -974,9 +1232,9 @@ general, the universe is not known. The field =S= in the class
 
 By the /class of function types/, we mean the collection of Pi types
 =Π z : B, C=. The third kind of coercion has the form
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 c : Π x1 : A1, ..., xn : An, y : F x1 ... xn, Π z : B, C
-#+END_SRC
+#+END_EXAMPLE
 where =F= is again a family of types and =B= and =C= can depend on
 =x1, ..., xn, y=. This makes it possible to write =t s= whenever =t=
 is an element of =F a1 ... an=. In other words, the coercion enables
@@ -1008,6 +1266,10 @@ structure morphism (S1 S2 : Semigroup) :=
 check @morphism.mor
 -- END
 #+END_SRC
+
+#+RESULTS:
+: morphism.mor : Π {S1 : Semigroup} {S2 : Semigroup}, morphism S1 S2 → ↥S1 → ↥S2
+
 As a result, it is a prime candidate for the third type of coercion.
 #+BEGIN_SRC lean
 universe variable u
@@ -1043,6 +1305,9 @@ calc
             ... = f a * f a * f a : by rw [resp_mul f]
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 With the coercion in place, we can write =f (a * a * a)= instead of
 =morphism.mor f (a * a * a)=. When the =morphism=, =f=, is used where
 a function is expected, Lean inserts the coercion.
@@ -1097,6 +1362,11 @@ set_option pp.coercions false
 check @test
 -- END
 #+END_SRC
+
+#+RESULTS:
+: test :
+:   ∀ (S1 : Semigroup) (S2 : Semigroup) (f : morphism S1 S2) (a : ↥S1), ⇑f (a * a * a) = ⇑f a * ⇑f a * ⇑f a
+: test : ∀ (S1 : Semigroup) (S2 : Semigroup) (f : morphism S1 S2) (a : ↥S1), f (a * a * a) = f a * f a * f a
 
 # ** Instances in Sections
 # :PROPERTIES:

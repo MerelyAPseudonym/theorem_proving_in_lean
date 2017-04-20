@@ -137,6 +137,9 @@ have hq : q, from and.right hpq,
 show q ∧ p, from and.intro hq hp
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Once again, if you are reading the book online, you will see a button
 that reads "try it yourself." Pressing the button copies the example
 into the Lean editor with enough surrounding context to make the

@@ -32,12 +32,12 @@ defining functions and proving theorems. Lean supports a very general
 form of pattern matching called /dependent pattern matching/.
 
 A pattern-matching definition is of the following form:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 definition [name] [parameters] : [domain] → [codomain]
 | [patterns_1] := [value_1]
 ...
 | [patterns_n] := [value_n]
-#+END_SRC
+#+END_EXAMPLE
 The parameters are fixed, and each assignment defines the value of the
 function for a different case specified by the given pattern. As a
 first example, we define the function =sub2= for natural numbers:
@@ -51,6 +51,9 @@ def sub2 : nat → nat
 
 example : sub2 5 = 3 := rfl
 #+END_SRC
+
+#+RESULTS:
+
 The default compilation method guarantees that the pattern matching equations
 hold definitionally.
 #+BEGIN_SRC lean
@@ -70,6 +73,8 @@ example (a : nat) : sub2 (a + 2) = a := rfl
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 We can use the command =print sub2= to see how our definition was
 compiled into recursors.
 #+BEGIN_SRC lean
@@ -84,6 +89,10 @@ def sub2 : nat → nat
 print sub2
 -- END
 #+END_SRC
+
+#+RESULTS:
+: def sub2 : ℕ → ℕ :=
+: sub2._main
 
 We will say a term is a /constructor application/ if it is of the form
 =c a_1 ... a_n= where =c= is the constructor of some inductive
@@ -113,6 +122,8 @@ theorem bnot_bnot : ∀ (b : bool), bnot (bnot b) = b
 end hide
 #+END_SRC
 
+#+RESULTS:
+
 As described in [[file:07_Inductive_Types.org::#Inductive_Types][Chapter 7]], Lean inductive data types can be
 parametric. The following example defines the =tail= function using
 pattern matching.  The argument =α : Type= is a parameter and occurs
@@ -131,6 +142,8 @@ def tail2 : Π {α : Type}, list α → list α
 | α nil      := nil
 | α (h :: t) := t
 #+END_SRC
+
+#+RESULTS:
 
 
 ** Structural Recursion and Induction
@@ -175,6 +188,9 @@ def mul : nat → nat → nat
 end nat
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 The "definition" of =zero_add= makes it clear that proof by induction
 is really a form of induction in Lean.
 
@@ -201,6 +217,9 @@ def add (m : nat) : nat → nat
 end nat
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 This may seem a little odd, but you should read the definition as
 follows: "Fix =m=, and define the function which adds something to =m=
 recursively, as follows. To add zero, return =m=. To add the successor
@@ -223,6 +242,8 @@ example : fib 1 = 1 := rfl
 example (a : nat) : fib (a+2) = fib (a+1) + fib a := rfl
 #+END_SRC
 
+#+RESULTS:
+
 # -- fib is always positive
 # theorem fib_pos : ∀ n, 0 < fib n
 # | fib_pos 0     := show 0 < 1, from zero_lt_succ 0
@@ -244,6 +265,8 @@ example : append [(1 : ℕ), 2, 3] [4, 5] = [1, 2, 3, 4, 5] := rfl
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
 
 ** Dependent Pattern-Matching
 
@@ -282,6 +305,12 @@ check @vector.cases_on
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+: vector.cases_on :
+:   Π {α : Type} {C : Π (a : ℕ), vector α a → Sort u_1} {a : ℕ} (n : vector α a),
+:     C 0 nil → (Π {n : ℕ} (a : α) (a_1 : vector α n), C (succ n) (a :: a_1)) → C a n
+
 But what value should we return in the =nil= case? Something funny is
 going on: if =v= has type =vector α (succ n)=, it /can't/ be nil, but
 it is not clear how to tell that to =cases_on=.
@@ -311,6 +340,9 @@ tail_aux v rfl
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 In the =nil= case, =m= is instantiated to =0=, and =no_confusion=
 makes use of the fact that =0 = succ n= cannot occur. Otherwise, =v=
 is of the form =a :: w=, and we can simply return =w=, after casting
@@ -362,6 +394,9 @@ def zip {α β : Type} : Π {n}, vector α n → vector β n → vector (α × �
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Note that we can omit recursive equations for "unreachable" cases such
 as =head nil=. The automatically generated definitions for indexed
 families are far from straightforward. For example:
@@ -387,6 +422,69 @@ print map._main
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+def hide.map : Π {α β γ : Type}, (α → β → γ) → Π {n : ℕ}, vector α n → vector β n → vector γ n :=
+λ {α β γ : Type} (f : α → β → γ), map._main f
+def hide.map._main : Π {α β γ : Type}, (α → β → γ) → Π {n : ℕ}, vector α n → vector β n → vector γ n :=
+λ {α β γ : Type} (f : α → β → γ) {n : ℕ} (a : vector α n) (a_1 : vector β n),
+  nat.brec_on n
+    (λ {n : ℕ} (_F : nat.below n) (a : vector α n) (a_1 : vector β n),
+       (λ {n : ℕ} (a : vector α n) (a_1 : vector β n) (_F : nat.below n),
+          nat.cases_on n
+            (λ (a : vector α 0) (a_1 : vector β 0) (_F : nat.below 0),
+               vector.cases_on a
+                 (λ (a_2 : 0 = 0) (H_2 : a == nil),
+                    eq.rec
+                      (vector.cases_on a_1 (λ (a : 0 = 0) (H_2 : a_1 == nil), eq.rec nil (eq.symm (eq_of_heq H_2)))
+                         (λ {n : ℕ} (a : β) (a_2 : vector β n) (H_1 : 0 = succ n), nat.no_confusion H_1)
+                         (eq.refl 0)
+                         (heq.refl a_1))
+                      (eq.symm (eq_of_heq H_2)))
+                 (λ {n : ℕ} (a_1 : α) (a_2 : vector α n) (H_1 : 0 = succ n), nat.no_confusion H_1)
+                 (eq.refl 0)
+                 (heq.refl a))
+            (λ (a : ℕ) (a_1 : vector α (succ a)) (a_2 : vector β (succ a)) (_F : nat.below (succ a)),
+               vector.cases_on a_1 (λ (a_2 : succ a = 0), nat.no_confusion a_2)
+                 (λ {n : ℕ} (a_3 : α) (a_4 : vector α n) (H_1 : succ a = succ n),
+                    nat.no_confusion H_1
+                      (λ (a_eq : a = n),
+                         eq.rec
+                           (λ (a : vector α (succ n)) (a_1 : vector β (succ n)) (_F : nat.below (succ n))
+                            (H_2 : a == a_3 :: a_4),
+                              eq.rec
+                                (vector.cases_on a_1 (λ (a : succ n = 0), nat.no_confusion a)
+                                   (λ {n_1 : ℕ} (a : β) (a_2 : vector β n_1) (H_1 : succ n = succ n_1),
+                                      nat.no_confusion H_1
+                                        (λ (a_eq : n = n_1),
+                                           eq.rec
+                                             (λ (a_1 : vector α n_1) (a_4 : vector β (succ n_1))
+                                              (_F : nat.below (succ n_1)) (H_2 : a_4 == a :: a_2),
+                                                eq.rec (f a_3 a :: (_F^.fst)^.fst a_1 a_2) (eq.symm (eq_of_heq H_2)))
+                                             (eq.symm a_eq)
+                                             a_4
+                                             a_1
+                                             _F))
+                                   (eq.refl (succ n))
+                                   (heq.refl a_1))
+                                (eq.symm (eq_of_heq H_2)))
+                           (eq.symm a_eq)
+                           a_1
+                           a_2
+                           _F))
+                 (eq.refl (succ a))
+                 (heq.refl a_1))
+            a
+            a_1
+            _F)
+         a
+         a_1
+         _F)
+    a
+    a_1
+#+end_example
+
 The =map= function is even more tedious to define by hand than the
 =tail= function. We encourage you to try it, using =rec_on=,
 =cases_on= and =no_confusion=.
@@ -403,6 +501,9 @@ def f : nat → nat → nat
 | x     0     := 2
 | (x+1) (y+1) := 3
 #+END_SRC
+
+#+RESULTS:
+
 Overlapping patterns are often used to succinctly express complex
 patterns in data, and they are allowed in Lean. Lean handles the
 ambiguity by using the first applicable equation. In the example
@@ -423,6 +524,8 @@ example : f (a+1) (b+1) = 3 := rfl
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 Lean also supports /wildcard patterns/, also known as /anonymous
 variables/. They are used to create patterns where we don't care about
 the value of a specific argument.  In the function =f= defined above,
@@ -439,6 +542,8 @@ example : f 0     (a+1) = 1 := rfl
 example : f (a+1) 0     = 2 := rfl
 example : f (a+1) (b+1) = 3 := rfl
 #+END_SRC
+
+#+RESULTS:
 
 Some functional languages support /incomplete patterns/. In these
 languages, the interpreter produces an exception or returns an
@@ -479,6 +584,8 @@ example : f2 (a+1) 0     = some 2 := rfl
 example : f2 (a+1) (b+1) = none   := rfl
 #+END_SRC
 
+#+RESULTS:
+
 ** Inaccessible Terms
 
 Sometimes an argument in a dependent matching pattern is not essential
@@ -515,6 +622,8 @@ def inverse {f : α → β} : Π b, image_of f b → α
 | .(f a) (imf .f a) := a
 #+END_SRC
 
+#+RESULTS:
+
 In the example above, the inaccessible annotation makes it clear
 that =f= is /not/ a pattern matching variable.
 
@@ -545,6 +654,8 @@ def filter : list α → list α
 example : filter is_not_zero [1, 0, 0, 3, 0] = [1, 3] := rfl
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 ** Well-Founded Recursion
 

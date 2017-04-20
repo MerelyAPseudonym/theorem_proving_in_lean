@@ -38,10 +38,14 @@ constructing a term of type =p ∧ q ∧ p=, in a context with constants
 theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p :=
 sorry
 #+END_SRC
+
+#+RESULTS:
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Sri:1:8: warning: declaration 'test' uses sorry
+
 We can write this goal as follows:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 p : Prop, q : Prop, hp : p, hq : q ⊢ p ∧ q ∧ p
-#+END_SRC
+#+END_EXAMPLE
 Indeed, if you replace the "sorry" by an underscore in the example
 above, Lean will report that it is exactly this goal that has been
 left unsolved.
@@ -60,13 +64,16 @@ begin
   exact hp
 end
 #+END_SRC
+
+#+RESULTS:
+
 The =apply= tactic applies an expression, viewed as denoting a
 function with zero or more arguments. It unifies the conclusion with
 the expression in the current goal, and creates new goals for the
 remaining arguments, provided that no later arguments depend on
 them. In the example above, the command =apply and.intro= yields two
 subgoals:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 p : Prop,
 q : Prop,
 hp : p,
@@ -74,7 +81,7 @@ hq : q
 ⊢ p
 
 ⊢ q ∧ p
-#+END_SRC
+#+END_EXAMPLE
 For brevity, Lean only displays the context for the first goal, which
 is the one addressed by the next tactic command. The first goal is met
 with the command =exact hp=. The =exact= command is just a variant of
@@ -99,6 +106,10 @@ print test
 -- END
 #+END_SRC
 
+#+RESULTS:
+: theorem test : ∀ (p q : Prop), p → q → p ∧ q ∧ p :=
+: λ (p q : Prop) (hp : p) (hq : q), and.intro hp (and.intro hq hp)
+
 You can write a tactic script incrementally. If you run Lean on an
 incomplete tactic proof bracketed by =begin= and =end=, the system
 reports all the unsolved goals that remain. If you are running Lean
@@ -120,6 +131,9 @@ begin
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Unsurprisingly, it produces exactly the same proof term.
 #+BEGIN_SRC lean
 theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p :=
@@ -132,6 +146,10 @@ end
 print test
 -- END
 #+END_SRC
+
+#+RESULTS:
+: theorem test : ∀ (p q : Prop), p → q → p ∧ q ∧ p :=
+: λ (p q : Prop) (hp : p) (hq : q), and.intro hp (and.intro hq hp)
 
 # TODO(Jeremy): will we eventually have a sequencing operator in Lean
 # 3?
@@ -152,6 +170,9 @@ block, you can write the =by= keyword followed by a single tactic:
 theorem test (p q : Prop) (hp : p) (hq : q) : p ∧ q ∧ p :=
 by exact and.intro hp (and.intro hq hp)
 #+END_SRC
+
+#+RESULTS:
+
 In the Lean Emacs mode, if you put your cursor on the "b" in "by" and
 press "C-c C-g", Lean shows you the goal that the tactic is supposed
 to meet.
@@ -173,6 +194,9 @@ begin
   exact and.intro hq hp
 end
 #+END_SRC
+
+#+RESULTS:
+
 The =include= command tells Lean to include the indicated variables
 (as well as any variables they depend on) from that point on, until
 the end of the section or file. To limit the effect of an =include=,
@@ -194,6 +218,9 @@ omit hp hq
 -- hp and hq are no longer included by default
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Alternatively, you can use a section to delimit the scope.
 #+BEGIN_SRC lean
 variables {p q : Prop} (hp : p) (hq : q)
@@ -212,6 +239,9 @@ end
 -- hp and hq are no longer included by default
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Another workaround is to find a way to
 refer to the variable in question before entering a tactic block:
 #+BEGIN_SRC lean
@@ -226,6 +256,9 @@ begin
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Any mention of =hp= or =hq= at all will cause it to be added to the
 hypotheses in the example.
 
@@ -272,6 +305,8 @@ begin
 end
 #+END_SRC
 
+#+RESULTS:
+
 The =intro= command can more generally be used to introduce a variable
 of any type:
 #+BEGIN_SRC lean
@@ -287,6 +322,9 @@ begin
   exact eq.refl x
 end
 #+END_SRC
+
+#+RESULTS:
+
 It has a plural form, =intros=, which takes a list of names.
 #+BEGIN_SRC lean
 example : ∀ a b c : ℕ, a = b → a = c → c = b :=
@@ -295,6 +333,9 @@ begin
   exact eq.trans (eq.symm h₂) h₁
 end
 #+END_SRC
+
+#+RESULTS:
+
 The =intros= command can also be used without any arguments, in which
 case, it chooses names and introduces as many variables as it can. We
 will see an example of this in a moment.
@@ -314,6 +355,9 @@ begin
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 It will unify metavariables in the conclusion if necessary:
 #+BEGIN_SRC lean
 variables x y z w : ℕ
@@ -329,6 +373,9 @@ begin
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 The following example uses the =intros= command to introduce the three
 variables and two hypotheses automatically:
 #+BEGIN_SRC lean
@@ -341,6 +388,8 @@ begin
   assumption
 end
 #+END_SRC
+
+#+RESULTS:
 
 There are tactics =reflexivity=, =symmetry=, and =transitivity=, which
 apply the corresponding operation. Using reflexivity, for example, is
@@ -360,6 +409,8 @@ begin
 end
 #+END_SRC
 
+#+RESULTS:
+
 The =repeat= combinator can be used to simplify the last two lines:
 #+BEGIN_SRC lean
 example : ∀ a b c : ℕ, a = b → a = c → c = b :=
@@ -370,6 +421,9 @@ begin
   repeat { assumption }
 end
 #+END_SRC
+
+#+RESULTS:
+
 The curly braces introduce a new tactic block; they are equivalent to
 a using a nested =begin ... end= pair, as discussed in the next section.
 
@@ -384,6 +438,9 @@ begin
   apply rfl
 end
 #+END_SRC
+
+#+RESULTS:
+
 Here, the command =fapply exists.intro= creates two goals. The first
 is to provide a natural number, =a=, and the second is to prove that
 =a = a=. Notice that the second goal depends on the first; solving the
@@ -401,6 +458,9 @@ begin
   reflexivity
 end
 #+END_SRC
+
+#+RESULTS:
+
 The =generalize= tactic generalizes the conclusion over the variable
 =x= using a universal quantifier over =z=.  We can generalize any
 term, not just a variable:
@@ -416,6 +476,9 @@ begin
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 If the expression passed as the first argument to =generalize= is not
 found in the goal, =generalize= raises an error.
 
@@ -436,6 +499,8 @@ end
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 Another useful tactic is the =revert= tactic, which moves an element
 of the context into the goal. When applied to a variable that occurs
 in the goal, it has the
@@ -448,6 +513,9 @@ begin
   reflexivity
 end
 #+END_SRC
+
+#+RESULTS:
+
 Moving a hypothesis into the goal yields an implication:
 #+BEGIN_SRC lean
 example (x y : ℕ) (h : x = y) : y = x :=
@@ -458,6 +526,9 @@ begin
   assumption
 end
 #+END_SRC
+
+#+RESULTS:
+
 But =revert= is even more clever, in that it will revert not only an
 element of the context but also all the subsequent elements of the
 context that depend on it. For example, reverting =x= in the example
@@ -471,6 +542,9 @@ begin
   assumption
 end
 #+END_SRC
+
+#+RESULTS:
+
 You can also revert multiple elements of the context at once:
 #+BEGIN_SRC lean
 example (x y : ℕ) (h : x = y) : y = x :=
@@ -481,6 +555,8 @@ begin
   assumption
 end
 #+END_SRC
+
+#+RESULTS:
 
 ** More tactics
 
@@ -500,6 +576,9 @@ begin
   left, exact hq
 end
 #+END_SRC
+
+#+RESULTS:
+
 After =cases h= is applied, there are two goals. In the first, the
 hypothesis =h : p ∨ q= is replaced by =hp : p=, and in the second, it
 is replaced by =hq : q=.  The =cases= can also be used to decompose
@@ -512,6 +591,9 @@ begin
   constructor, exact hq, exact hp
 end
 #+END_SRC
+
+#+RESULTS:
+
 In this case, there is only one goal after the =cases= tactic is
 applied, with =h : p ∧ q= replaced by a pair of assumptions, =hp : p=
 and =hq : q=. The constructor applies the unique constructor for
@@ -535,6 +617,8 @@ begin
 end
 #+END_SRC
 
+#+RESULTS:
+
 We will see in [[file:07_Inductive_Types.org::#Inductive_Types][Chapter 7]] that these tactics are quite general. The
 =cases= tactic can be used to decompose any element of an inductively
 defined type; =constructor= always applies the first constructor of an
@@ -550,6 +634,9 @@ begin
   constructor, left, exact px
 end
 #+END_SRC
+
+#+RESULTS:
+
 Here, the =constructor= tactic leaves the first component of the
 existential assertion, the value of =x=, implicit. It is represented
 by a metavariable, which should be instantiated later on. In the
@@ -565,6 +652,8 @@ begin
   existsi x, left, exact px
 end
 #+END_SRC
+
+#+RESULTS:
 
 These tactics can be used on data just as well as propositions. In the
 next two example, they are used to define functions which swap the
@@ -587,6 +676,9 @@ begin
     left, exact hb
 end
 #+END_SRC
+
+#+RESULTS:
+
 Note that up to the names we have chosen for the variables, the
 definitions are identical to the proofs of the analogous propositions
 for conjunction and disjunction. The =cases= tactic will also do a
@@ -599,6 +691,9 @@ begin
   cases m with m', exact h₀, exact h₁ m'
 end
 #+END_SRC
+
+#+RESULTS:
+
 For further discussion, see [[file:07_Inductive_Types.org::#Inductive_Types][Chapter 7]].
 
 # TODO: here and above, add a more specific section reference.
@@ -636,6 +731,9 @@ begin
     end
 end
 #+END_SRC
+
+#+RESULTS:
+
 The following is a more natural example:
 #+BEGIN_SRC lean
 example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
@@ -658,6 +756,9 @@ begin
     from ⟨hpr^.left, or.inr hpr^.right⟩
 end
 #+END_SRC
+
+#+RESULTS:
+
 With the =exact= tactic, we use =show= to indicate the goal at that
 point in the proof. In fact, this idiom is so useful that Lean offers
 the following abbreviation: in a tactic block, the expression =show p,
@@ -681,6 +782,9 @@ begin
     from ⟨hpr^.left, or.inr hpr^.right⟩
 end
 #+END_SRC
+
+#+RESULTS:
+
 This blurs the distinction between proof-term mode and tactic-mode,
 and so it is important to use indentation and the structuring
 mechanisms discussed below to make it clear where a proof term ends.
@@ -704,6 +808,8 @@ begin
   end
 end
 #+END_SRC
+
+#+RESULTS:
 
 You can also nest =begin...end= blocks within other =begin...end=
 blocks.  In a nested block, Lean focuses on the first goal, and
@@ -734,6 +840,9 @@ begin
     ⟨hpr^.left, or.inr hpr^.right⟩
 end
 #+END_SRC
+
+#+RESULTS:
+
 Here, we have introduced a new =begin..end= block whenever a tactic
 leaves more than one subgoal. You can check (using =C-c C-g= in Emacs
 mode, for example) that every line in this proof, there is only one
@@ -761,13 +870,16 @@ begin
     from ⟨hpr^.left, or.inr hpr^.right⟩
 end
 #+END_SRC
+
+#+RESULTS:
+
 This helps explain the convention on indentation we have adopted here:
 every time a tactic leaves more than one subgoal, we separate the
 remaining subgoals by enclosing them in blocks and indenting, until we
 are back down to one subgoal. Thus if the application of theorem =foo=
 to a single goal produces four subgoals, one would expect the proof to
 look like this:
-#+BEGIN_SRC lean_text
+#+BEGIN_EXAMPLE
 begin
   apply foo,
   { ... proof of first goal ... },
@@ -775,7 +887,7 @@ begin
   { ... proof of third goal ... },
   proof of final goal
 end
-#+END_SRC
+#+END_EXAMPLE
 
 Another reasonable convention is to enclose /all/ the remaining subgoals
 in indented blocks, including the last one:
@@ -797,9 +909,12 @@ begin
         from ⟨hpr^.left, or.inr hpr^.right⟩ }}
 end
 #+END_SRC
+
+#+RESULTS:
+
 With this convention, the proof using =foo= described above would look
 like this:
-#+BEGIN_SRC lean_text
+#+BEGIN_EXAMPLE
 begin
   apply foo,
   { ... proof of first goal ... },
@@ -807,7 +922,7 @@ begin
   { ... proof of third goal ... },
   { ... proof of final goal ....}
 end
-#+END_SRC
+#+END_EXAMPLE
 
 Both conventions are reasonable. The second convention has the effect
 that the text in a long proof gradually creeps to the right. Many
@@ -832,6 +947,9 @@ begin
   exact ⟨hp, hq⟩
 end
 #+END_SRC
+
+#+RESULTS:
+
 Here, the first =assert= creates a new subgoal, =p=. After that
 subgoal is proved, we are left with the original subgoal, with the
 context augmented by =hp : p=. Tactics are used are to prove both
@@ -854,6 +972,9 @@ begin
   exact ⟨hp, hq⟩
 end
 #+END_SRC
+
+#+RESULTS:
+
 In general, if =e= has type =t=, then ~note h := e~ adds a hypothesis
 =h : t= to the context, without giving you access to the contents of
 =e=. If, instead, you need the contents of =e=, use ~pose x := e~
@@ -867,6 +988,8 @@ begin
   reflexivity
 end
 #+END_SRC
+
+#+RESULTS:
 
 Just as the =assert= tactic can be used to simulate the benefits of
 =have=, the =change= tactic can be used to simulate the benefits of
@@ -884,6 +1007,9 @@ begin
   exact h^.left
 end
 #+END_SRC
+
+#+RESULTS:
+
 The name of the =change= tactic is explained by the fact that it can
 be used to replace a goal by any definitionally equivalent statement.
 #+BEGIN_SRC lean
@@ -893,6 +1019,9 @@ begin
   assumption
 end
 #+END_SRC
+
+#+RESULTS:
+
 The =change= statement will also work if the expression you give it
 has metavariables, in which case, it tries to unify the expression
 with the goal.
@@ -904,6 +1033,9 @@ begin
   assumption
 end
 #+END_SRC
+
+#+RESULTS:
+
 In this example, after the =transitivity= tactic is applied, there are
 two goals, =a = ?m_1= and =?m_1 = c=. After the =change=, the two
 goals have been specialized to =a = b= and =b = c=.
@@ -935,6 +1067,9 @@ begin
   rw h₁  -- replace f 0 with 0
 end
 #+END_SRC
+
+#+RESULTS:
+
 In the example above, the first use of =rw= replaces =k= with =0= in
 the goal =f k = 0=.  Then, the second one replaces =f 0= with =0=. The
 tactic automatically closes any goal of the form =t = t=.
@@ -951,6 +1086,8 @@ begin
 end
 #+END_SRC
 
+#+RESULTS:
+
 By default, =rw= uses an equation in the forward direction, matching
 the left-hand side with an expression, and replacing it with the
 right-hand side. The notation =-t= can be used to instruct the tactic
@@ -963,6 +1100,9 @@ begin
   rw [-h₁, h₂]
 end
 #+END_SRC
+
+#+RESULTS:
+
 In this example, the term =-h₁= instructs the rewriter to replace
 =b= with =a=.
 
@@ -987,6 +1127,9 @@ begin
   rw [add_assoc, add_assoc, add_comm _ b]
 end
 #+END_SRC
+
+#+RESULTS:
+
 In the first example above, the first step rewrites =a + b + c= to
 =a + (b + c)=.  Then next applies commutativity to the term =b + c=;
 without specifying the argument, the tactic would instead rewrite =a +
@@ -1008,6 +1151,9 @@ begin
   rw add_zero at h, rw h
 end
 #+END_SRC
+
+#+RESULTS:
+
 The first step, =rw add_zero at h=, rewrites the hypothesis =a + 0 = 0=
 to =a = 0=. Then the new hypothesis =a = 0= is used to rewrite the
 goal to =f 0 = f 0=.
@@ -1032,6 +1178,8 @@ begin
 end
 #+END_SRC
 
+#+RESULTS:
+
 Note that the rewrite tactic can carry out generic calculations in
 any algebraic structure. The following examples involve an arbitrary
 ring and an arbitrary group, respectively.
@@ -1047,6 +1195,9 @@ end
 example {α : Type uu} [group α] {a b : α} (h : a * b = 1) : a⁻¹ = b :=
 by rw [-(mul_one a⁻¹), -h, inv_mul_cancel_left]
 #+END_SRC
+
+#+RESULTS:
+
 Using the type class mechanism described in [[file:10_Type_Classes.org::#Type_Classes][Chapter 10]], Lean
 identifies both abstract and concrete instances of the relevant
 algebraic structures, and instantiates the relevant facts accordingly.
@@ -1069,6 +1220,9 @@ include h
 example : p ((x + 0) * (0 + y * 1 + z * 0)) :=
 begin simp, assumption end
 #+END_SRC
+
+#+RESULTS:
+
 In the first example, the left-hand side of the equality in the goal
 is simplified using the usual identities involving 0 and 1, reducing
 the goal to =x * y = x * y=. At that point, =simp= applies reflexivity
@@ -1084,6 +1238,8 @@ example (h : p ((x + 0) * (0 + y * 1 + z * 0))) : p (x * y) :=
 begin simp at h, assumption end
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 For operations that are commutative and associative, like addition on
 the natural numbers, the simplifier uses these two facts to rewrite an
@@ -1109,6 +1265,9 @@ by simp
 example (h : p (x * y + z * w  * x)) : p (x * w * z + y * x) :=
 begin simp, simp at h, assumption end
 #+END_SRC
+
+#+RESULTS:
+
 As with the rewriter, the simplifier behaves appropriately in
 algebraic structures:
 #+BEGIN_SRC lean
@@ -1120,6 +1279,8 @@ begin simp end
 example (x y z w : α) : x * y + z * w  * x = x * w * z + y * x :=
 by simp
 #+END_SRC
+
+#+RESULTS:
 
 Also as with the =rewrite= tactic, you can pass additional arguments
 to =simp=. These can either be names of theorems or expressions.
@@ -1135,6 +1296,9 @@ theorem f.def (m n : ℕ) : f m n = m + n + m := rfl
 example {m n : ℕ} (h : n = 1) (h' : 0 = m) : (f m n) * m = m :=
 by simp [h, h'^.symm, f.def]
 #+END_SRC
+
+#+RESULTS:
+
 If we add the attribute =[simp]= to the theorem =f.def=, we do not
 need to include it.
 #+BEGIN_SRC lean
@@ -1146,6 +1310,8 @@ theorem f.def (m n : ℕ) : f m n = m + n + m := rfl
 example {m n : ℕ} (h : n = 1) (h' : 0 = m) : (f m n) * m = m :=
 by simp [h, h'^.symm]
 #+END_SRC
+
+#+RESULTS:
 
 # TODO(Jeremy): still need to:
 #   Describe more features of the simplifier (as they become

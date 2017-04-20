@@ -67,6 +67,8 @@ take y : α,
 show p y, from (h y)^.left
 #+END_SRC
 
+#+RESULTS:
+
 As a notational convention, we give the universal quantifier the
 widest scope possible, so parentheses are needed to limit the
 quantifier over =x= to the hypothesis in the example above. The
@@ -91,6 +93,8 @@ show p z, from and.elim_left (h z)
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 As another example, here is how we can express the fact that a
 relation, =r=, is transitive:
 #+BEGIN_SRC lean
@@ -105,6 +109,13 @@ check trans_r a b c
 check trans_r a b c hab
 check trans_r a b c hab hbc
 #+END_SRC
+
+#+RESULTS:
+: trans_r : ∀ (x y z : α), r x y → r y z → r x z
+: trans_r a b c : r a b → r b c → r a c
+: trans_r a b c hab : r b c → r a c
+: trans_r a b c hab hbc : r a c
+
 Think about what is going on here. When we instantiate =trans_r= at
 the values =a b c=, we end up with a proof of =r a b → r b c → r a
 c=. Applying this to the "hypothesis" =hab : r a b=, we get a proof of
@@ -125,6 +136,12 @@ check trans_r
 check trans_r hab
 check trans_r hab hbc
 #+END_SRC
+
+#+RESULTS:
+: trans_r : r ?M_1 ?M_2 → r ?M_2 ?M_3 → r ?M_1 ?M_3
+: trans_r hab : r b ?M_1 → r a ?M_1
+: trans_r hab hbc : r a c
+
 The advantage is that we can simply write =trans_r hab hbc= as a proof
 of =r a c=. A disadvantage is that Lean does not have enough
 information to infer the types of the arguments in the expressions
@@ -145,6 +162,9 @@ variable trans_r : ∀ {x y z}, r x y → r y z → r x z
 example (a b c d : α) (hab : r a b) (hcb : r c b) (hcd : r c d) : r a d :=
 trans_r (trans_r hab (symm_r hcb)) hcd
 #+END_SRC
+
+#+RESULTS:
+
 You might want to try to prove some of these equivalences:
 #+BEGIN_SRC lean
 variables (α : Type) (p q : α → Prop)
@@ -153,6 +173,12 @@ example : (∀ x, p x ∧ q x) ↔ (∀ x, p x) ∧ (∀ x, q x) := sorry
 example : (∀ x, p x → q x) → (∀ x, p x) → (∀ x, q x) := sorry
 example : (∀ x, p x) ∨ (∀ x, q x) → ∀ x, p x ∨ q x := sorry
 #+END_SRC
+
+#+RESULTS:
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004KHa:4:8: warning: declaration '_example' uses sorry
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004KHa:3:8: warning: declaration '_example' uses sorry
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004KHa:5:8: warning: declaration '_example' uses sorry
+
 You should also try to understand why the reverse implication is not
 derivable in the last example.
 
@@ -168,6 +194,11 @@ example : (∀ x, p x ∨ r) ↔ (∀ x, p x) ∨ r := sorry
 example : (∀ x, r → p x) ↔ (r → ∀ x, p x) := sorry
 #+END_SRC
 
+#+RESULTS:
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004-vy:6:8: warning: declaration '_example' uses sorry
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004-vy:4:8: warning: declaration '_example' uses sorry
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004-vy:5:8: warning: declaration '_example' uses sorry
+
 As a final example, consider the "barber paradox", that is, the claim
 that in a certain town there is a (male) barber that shaves all and only the
 men who do not shave themselves. Prove that this implies a
@@ -177,6 +208,9 @@ variables (men : Type) (barber : men) (shaves : men → men → Prop)
 
 example (h : ∀ x : men, shaves barber x ↔ ¬ shaves x x) : false := sorry
 #+END_SRC
+
+#+RESULTS:
+: /private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004XYU:3:8: warning: declaration '_example' uses sorry
 
 It is the typing rule for Pi types, and the universal quantifier in
 particular, that distinguishes =Prop= from other types. Suppose we
@@ -225,6 +259,12 @@ check eq.refl    -- ∀ (a : ?M_1), a = a
 check eq.symm    -- ?M_2 = ?M_3 → ?M_3 = ?M_2
 check eq.trans   -- ?M_2 = ?M_3 → ?M_3 = ?M_4 → ?M_2 = ?M_4
 #+END_SRC
+
+#+RESULTS:
+: eq.refl : ∀ (a : ?M_1), a = a
+: eq.symm : ?M_2 = ?M_3 → ?M_3 = ?M_2
+: eq.trans : ?M_2 = ?M_3 → ?M_3 = ?M_4 → ?M_2 = ?M_4
+
 Thus, for example, we can specialize the example from the previous section
 to the equality relation:
 #+BEGIN_SRC lean
@@ -234,6 +274,8 @@ premises (hab : a = b) (hcb : c = b) (hcd : c = d)
 example : a = d :=
 eq.trans (eq.trans hab (eq.symm hcb)) hcd
 #+END_SRC
+
+#+RESULTS:
 
 If we "open" the eq namespace, the names become shorter:
 #+BEGIN_SRC lean
@@ -246,6 +288,9 @@ open eq
 example : a = d := trans (trans hab (symm hcb)) hcd
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 We can also use the projection notation:
 #+BEGIN_SRC lean
 variables (α : Type) (a b c d : α)
@@ -255,6 +300,8 @@ premises (hab : a = b) (hcb : c = b) (hcd : c = d)
 example : a = d := (hab^.trans hcb^.symm)^.trans hcd
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 Reflexivity is more powerful than it looks. Recall that terms in the
 Calculus of Inductive Constructions have a computational
@@ -268,6 +315,9 @@ example (f : α → β) (a : α) : (λ x, f x) a = f a := eq.refl _
 example (a : α) (b : α) : (a, b).1 = a := eq.refl _
 example : 2 + 3 = 5 := eq.refl _
 #+END_SRC
+
+#+RESULTS:
+
 This feature of the framework is so important that the library defines
 a notation =rfl= for =eq.refl _=:
 #+BEGIN_SRC lean
@@ -279,6 +329,8 @@ example (a : α) (b : α) : (a, b).1 = a := rfl
 example : 2 + 3 = 5 := rfl
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 Equality is much more than an equivalence relation, however. It has
 the important property that every assertion respects the equivalence,
@@ -292,6 +344,9 @@ eq.subst h1 h2
 example (α : Type) (a b : α) (P : α → Prop) (h1 : a = b) (h2 : P a) : P b :=
 h1 ▸ h2
 #+END_SRC
+
+#+RESULTS:
+
 The triangle in the second presentation is nothing more than notation
 for =eq.subst=, and you can enter it by typing =\t=.
 
@@ -312,6 +367,8 @@ example : f a = f b := congr_arg f h₁
 example : f a = g a := congr_fun h₂ a
 example : f a = g b := congr h₂ h₁
 #+END_SRC
+
+#+RESULTS:
 
 # TODO: use int rather than comm_ring in the examples below
 
@@ -339,6 +396,9 @@ example : (a + b) * c = a * c + b * c := right_distrib a b c -- alternative name
 example : a * (b - c) = a * b - a * c := mul_sub a b c
 example : (a - b) * c = a * c - b * c := sub_mul a b c
 #+END_SRC
+
+#+RESULTS:
+
 Identities likes these are designed to work in arbitrary instances of
 the relevant algebraic structures, using the type class mechanism that
 is described in [[file:10_Type_Classes.org::#Type_Classes][Chapter 10]]. [[file::06_Interacting_with_Lean.org:#Interacting_with_Lean.org][Chapter 6]] provides some pointers as to
@@ -359,6 +419,9 @@ have h2 : (x + y) * (x + y) = x * x + y * x + (x * y + y * y),
   from (add_mul x y x) ▸ (add_mul x y y) ▸ h1,
 h2^.trans (add_assoc (x * x + y * x)(x * y) (y * y))^.symm
 #+END_SRC
+
+#+RESULTS:
+
 It is often important to be able to carry out substitutions by hand,
 but it is tedious to prove examples like the one above in this
 way. Fortunately, Lean provides an environment that provides better
@@ -373,13 +436,13 @@ A calculational proof is just a chain of intermediate results that are
 meant to be composed by basic principles such as the transitivity of
 equality. In Lean, a calculation proof starts with the keyword =calc=,
 and has the following syntax:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 calc
   <expr>_0  'op_1'  <expr>_1  ':'  <proof>_1
     '...'   'op_2'  <expr>_2  ':'  <proof>_2
      ...
     '...'   'op_n'  <expr>_n  ':'  <proof>_n
-#+END_SRC
+#+END_EXAMPLE
 Each =<proof>_i= is a proof for =<expr>_{i-1} op_i <expr>_i=. The
 =<proof>_i= may also be of the form ={ <pr> }=, where =<pr>= is a
 proof for some equality =a = b=. The form ={ <pr> }= is just syntactic
@@ -403,6 +466,9 @@ calc
     ... = 1 + d  : add_comm d (1 : ℕ)
     ... =  e     : eq.symm h4
 #+END_SRC
+
+#+RESULTS:
+
 The style of writing proofs is most effective when it is used in
 conjunction with the =simp= and =rewrite= tactics, which are discussed
 in greater detail in the next chapter. For example, using the
@@ -424,6 +490,9 @@ calc
     ... = 1 + d  : by rw add_comm
     ... =  e     : by rw h4
 #+END_SRC
+
+#+RESULTS:
+
 In the next chapter, we will see that hypotheses can be introduced,
 renamed, and modified by tactics, so it is not always clear what the
 names in =rw h1= refer to (though, in this case, it is). For that
@@ -452,6 +521,9 @@ calc
     ... =  e     : by rw h4
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Or even this:
 #+BEGIN_SRC lean
 variables (a b c d e : ℕ)
@@ -466,6 +538,9 @@ theorem T : a = e :=
 by rw [h1, h2, h3, add_comm, h4]
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 The =simp= tactic, instead, rewrites the goal by applying the given
 identities repeatedly, in any order, anywhere they are applicable in a
 term. It also uses other rules that have been previously declared to
@@ -485,6 +560,9 @@ theorem T : a = e :=
 by simp [h1, h2, h3, h4]
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 We will discuss variations of =rw= and =simp= in the next chapter.
 
 The =calc= command can be configured for any relation that supports
@@ -499,6 +577,8 @@ calc
     ... < d     : h3
 #+END_SRC
 
+#+RESULTS:
+
 With =calc=, we can write the proof in the last section in a more
 natural and perspicuous way.
 #+BEGIN_SRC lean
@@ -509,6 +589,9 @@ calc
     ... = x * x + y * x + (x * y + y * y)        : by rw add_mul
     ... = x * x + y * x + x * y + y * y          : by rw -add_assoc
 #+END_SRC
+
+#+RESULTS:
+
 Here the negation before =add_assoc= tells rewrite to use the identity
 in the opposite direction. If brevity is what we are after, both =rw=
 and =simp= can do the job on their own:
@@ -519,6 +602,8 @@ by rw [mul_add, add_mul, add_mul, -add_assoc]
 example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
 by simp [mul_add, add_mul]
 #+END_SRC
+
+#+RESULTS:
 
 
 ** The Existential Quantifier
@@ -547,6 +632,10 @@ exists.intro y (and.intro hxy hyz)
 
 check @exists.intro
 #+END_SRC
+
+#+RESULTS:
+: exists.intro : ∀ {α : Sort u_1} {p : α → Prop} (a : α), p a → Exists p
+
 We can use the anonymous constructor notation =⟨t, h⟩= for
 =exists.intro t h=, when the type is clear from the context.
 #+BEGIN_SRC lean
@@ -563,6 +652,9 @@ example (x y z : ℕ) (hxy : x < y) (hyz : y < z) : ∃ w, x < w ∧ w < z :=
 ⟨y, hxy, hyz⟩
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Note that =exists.intro= has implicit arguments: Lean has to infer the
 predicate =p : α → Prop= in the conclusion =∃ x, p x=. This is not a
 trivial affair. For example, if we have have =hg : g 0 0 = 0= and
@@ -588,6 +680,12 @@ check gex3
 check gex4
 #+END_SRC
 
+#+RESULTS:
+: gex1 : ∀ (g : ℕ → ℕ → ℕ), g 0 0 = 0 → (∃ (x : ℕ), g x x = x)
+: gex2 : ∀ (g : ℕ → ℕ → ℕ), g 0 0 = 0 → (∃ (x : ℕ), g x 0 = x)
+: gex3 : ∀ (g : ℕ → ℕ → ℕ), g 0 0 = 0 → (∃ (x : ℕ), g 0 0 = x)
+: gex4 : ∀ (g : ℕ → ℕ → ℕ), g 0 0 = 0 → (∃ (x : ℕ), g x x = 0)
+
 We can view =exists.intro= as an information-hiding operation: we are
 "hiding" the witness to the body of the assertion. The existential
 elimination rule, =exists.elim=, performs the opposite operation. It
@@ -606,6 +704,9 @@ exists.elim h
     assume hw : p w ∧ q w,
     show ∃ x, q x ∧ p x, from ⟨w, hw^.right, hw^.left⟩)
 #+END_SRC
+
+#+RESULTS:
+
 It may be helpful to compare the
 exists-elimination rule to the or-elimination rule: the assertion =∃
 x : α, p x= can be thought of as a big disjunction of the propositions
@@ -628,6 +729,9 @@ match h with ⟨w, hw⟩ :=
   ⟨w, hw^.right, hw^.left⟩
 end
 #+END_SRC
+
+#+RESULTS:
+
 The =match= statement is part of Lean's function definition system,
 which provides a convenient and expressive ways of defining complex
 functions. Once again, it is the Curry-Howard isomorphism that allows
@@ -646,6 +750,9 @@ match h with ⟨(w : α), (hw : p w ∧ q w)⟩ :=
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 We can even use the match statement to decompose the conjunction at
 the same time:
 #+BEGIN_SRC lean
@@ -658,6 +765,9 @@ match h with ⟨w, hpw, hqw⟩ :=
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Lean will even allow us to use an implicit =match= in the =assume=
 statement:
 #+BEGIN_SRC lean
@@ -668,6 +778,8 @@ example : (∃ x, p x ∧ q x) → ∃ x, q x ∧ p x :=
 assume ⟨w, hpw, hqw⟩, ⟨w, hqw, hpw⟩
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 In the following example, we define =even a= as =∃ b, a = 2*b=, and
 then we show that the sum of two even numbers is an even number.
@@ -682,6 +794,9 @@ exists.elim h2 (take w2, assume hw2 : b = 2 * w2,
       a + b = 2 * w1 + 2 * w2  : by rw [hw1, hw2]
         ... = 2*(w1 + w2)      : by rw mul_add)))
 #+END_SRC
+
+#+RESULTS:
+
 Using the various gadgets described in this chapter --- the match
 statement, anonymous constructors, and the =rewrite= tactic, we can
 write this proof concisely as follows:
@@ -695,6 +810,8 @@ match h1, h2 with
 end
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 # TODO: discuss obtains here when available
 
@@ -746,6 +863,8 @@ by_contradiction
     show false, from h h2)
 #+END_SRC
 
+#+RESULTS:
+
 What follows are some common identities involving the existential
 quantifier. We encourage you to prove as many as you can. We are also
 leaving it to you to determine which are nonconstructive, and hence
@@ -771,6 +890,22 @@ example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
 example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
 example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:8:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:7:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:13:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:14:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:9:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:15:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:12:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:18:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:10:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:17:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004Qbs:19:8: warning: declaration '_example' uses sorry
+#+end_example
+
 Notice that the declaration =variable a : α= amounts to the assumption
 that there is at least one element of type =α=. This assumption is
 needed in the second example, as well as in the last two.
@@ -821,6 +956,8 @@ iff.intro
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 ** More on the Proof Language
 
 We have seen that keywords like =assume=, =take=, =have=, and =show=
@@ -843,6 +980,9 @@ have f 0 ≤ f 1, from h 0,
 have f 0 ≤ f 2, from le_trans this (h 1),
 show f 0 ≤ f 3, from le_trans this (h 2)
 #+END_SRC
+
+#+RESULTS:
+
 Often proofs move from one fact to the next, so this can be effective
 in eliminating the clutter of lots of labels.
 
@@ -857,6 +997,9 @@ have f 0 ≤ f 1, from h 0,
 have f 0 ≤ f 2, from le_trans (by assumption) (h 1),
 show f 0 ≤ f 3, from le_trans (by assumption) (h 2)
 #+END_SRC
+
+#+RESULTS:
+
 This tells Lean to use the =assumption= tactic, which, in turn, proves
 the goal by finding a suitable hypothesis in the local context. We
 will learn more about the =assumption= tactic in the next chapter.
@@ -876,6 +1019,9 @@ have f 0 ≤ f 2, from le_trans (h 0) (h 1),
 show f 0 = f 2, from le_antisymm this ‹f 0 ≥ f 2›
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 You can type these corner quotes using =\f<= and =\f>=,
 respectively. The letter "f" is for "French," since the unicode
 symbols can also be used as French quotation marks. In fact, the
@@ -883,6 +1029,9 @@ notation is defined in Lean as follows:
 #+BEGIN_SRC lean
 notation `‹` p `›` := show p, by assumption
 #+END_SRC
+
+#+RESULTS:
+
 This approach is more robust than using =by assumption=, because the
 type of the assumption that needs to be inferred is given
 explicitly. It also makes proofs more readable. Here is a more
@@ -900,6 +1049,9 @@ show f 0 ≤ f 3, from le_trans ‹f 0 ≤ f 1›
                        (le_trans ‹f 1 ≤ f 2› ‹f 2 ≤ f 3›)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Keep in mind that use can use the French quotation marks in this way
 to refer to /anything/ in the context, not just things that were
 introduced anonymously. It use is also not limited to propositions,
@@ -907,6 +1059,8 @@ though using it for data is somewhat odd:
 #+BEGIN_SRC lean
 example (n : ℕ) : ℕ := ‹ℕ›
 #+END_SRC
+
+#+RESULTS:
 
 The =suppose= keyword acts as an anonymous assume:
 #+BEGIN_SRC lean
@@ -919,6 +1073,9 @@ suppose f 0 ≥ f 1,
 show f 0 = f 1, from le_antisymm (h 0) this
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Notice that there is an asymmetry: you can use =have= with or without
 a label, but if you do not wish to name the assumption, you must use
 =suppose= rather than =assume=. The reason is that Lean allows us to
@@ -942,6 +1099,9 @@ have f 0 ≤ f 2, from le_trans (h 0) (h 1),
 show f 0 = f 2, from le_antisymm this ‹f 0 ≥ f 2›
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Notice that =le_antisymm= is the assertion that if =a ≤ b= and =b ≤ a=
 then =a = b=, and =a ≥ b= is definitionally equal to =b ≤ a=.
 

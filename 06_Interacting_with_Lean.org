@@ -40,9 +40,9 @@ constructions. As a result, most of the examples we present here work
 If you want to use additional files, however, they need to be imported
 manually, via an =import= statement at the beginning of a file. The
 command
-#+BEGIN_SRC lean_text
+#+BEGIN_EXAMPLE
 import foo bar.baz.blah
-#+END_SRC
+#+END_EXAMPLE
 imports the files =foo.lean= and =bar/baz/blah.lean=, where the
 descriptions are interpreted relative to the Lean /search
 path/. Information as to how the search path is determined can be
@@ -50,9 +50,9 @@ found on the [[http://leanprover.github.io/documentation/][documentation pages]]
 library directory, and (in some contexts) the root of the user's local
 project. One can also specify imports relative to the current
 directory; for example,
-#+BEGIN_SRC lean_text
+#+BEGIN_EXAMPLE
 import .foo ..bar.baz
-#+END_SRC
+#+END_EXAMPLE
 tells Lean to import =foo.lean= from the current directory and
 =bar/baz.lean= relative to the parent of the current directory.
 
@@ -91,6 +91,13 @@ section
   by simp [double, mul_add]
 end
 #+END_SRC
+
+#+RESULTS:
+: double y : ℕ
+: double (2 * x) : ℕ
+: t1 y : ∀ (y_1 : ℕ), double (y + y_1) = double y + double y_1
+: t1 (2 * x) : ∀ (y : ℕ), double (2 * x + y) = double (2 * x) + double y
+
 The definition of =double= does not have to declare =x= as an
 argument; Lean detects the dependence and inserts it
 automatically. Similarly, Lean detects the occurrence of =x= in =t1=
@@ -127,6 +134,12 @@ section
   check @baz
 end
 #+END_SRC
+
+#+RESULTS:
+: foo : ∀ (x y z : ℕ), x = y → y = z → x = z
+: bar : ∀ (x y z : ℕ), x = y → y = z → x = z
+: baz : ∀ (x : ℕ), x = x
+
 The =omit= command simply undoes the effect of the =include=; it does
 not prevent the arguments from being included automatically in
 subsequent theorems that mention them. The scope of the =include=
@@ -158,6 +171,12 @@ section
   check @baz
 end
 #+END_SRC
+
+#+RESULTS:
+: foo : ∀ (x y z : ℕ), x = y → y = z → x = z
+: bar : ∀ (x y z : ℕ), x = y → y = z → x = z
+: baz : ∀ (x : ℕ), x = x
+
 The include command is often useful with structures that are not
 mentioned explicitly but meant to be inferred by type class inference,
 as described in [[file:10_Type_Classes.org][Chapter 10]].
@@ -197,6 +216,12 @@ section
   check @baz
 end
 #+END_SRC
+
+#+RESULTS:
+: foo : ∀ {x y z : ℕ}, x = y → y = z → x = z
+: bar : ∀ (x y z : ℕ), x = y → y = z → x = z
+: baz : ∀ {x : ℕ}, x = x
+
 Using these subsequent =variables= commands does not change the order
 in which variables are inserted. It only changes the explicit /
 implicit annotations.
@@ -237,6 +262,18 @@ end
 check t1
 check t2
 #+END_SRC
+
+#+RESULTS:
+: t1 : r ?M_1 ?M_2 → r ?M_2 ?M_3 → r ?M_3 ?M_4 → r ?M_1 ?M_4
+: t2 : r ?M_1 ?M_2 → r ?M_2 ?M_3 → r ?M_3 ?M_4 → r ?M_4 ?M_5 → r ?M_1 ?M_5
+: t1 :
+:   Π (r : ?M_1 → ?M_1 → Type),
+:     (Π {x y z : ?M_1}, r x y → r y z → r x z) → Π {a b c d : ?M_1}, r a b → r b c → r c d → r a d
+: t2 :
+:   Π (r : ?M_1 → ?M_1 → Type),
+:     (Π {x y z : ?M_1}, r x y → r y z → r x z) →
+:     Π {a b c d e : ?M_1}, r a b → r b c → r c d → r d e → r a e
+
 As with variables, the parameters =α=, =r=, and =transR= are inserted
 as arguments to definitions and theorems as needed. But there is a
 difference: within the section, =t1= is an abbreviation for =@t1 α r
@@ -274,6 +311,11 @@ open foo
 check bar
 check foo.bar
 #+END_SRC 
+
+#+RESULTS:
+: bar : ℕ
+: bar : ℕ
+
 It is not important the the definition of =foo.bar= was the result of
 a =namespace= command:
 #+BEGIN_SRC lean
@@ -284,6 +326,10 @@ open foo
 check bar
 check foo.bar
 #+END_SRC
+
+#+RESULTS:
+: bar : ℕ
+: bar : ℕ
 
 Although the names of theorems and definitions have to be unique, the
 aliases that identify them do not. For example, the standard library
@@ -302,6 +348,11 @@ check nat.add_sub_cancel
 check _root_.add_sub_cancel
 #+END_SRC
 
+#+RESULTS:
+: add_sub_cancel : ∀ (a b : ?M_1), a + b - b = a
+: nat.add_sub_cancel : ∀ (n m : ℕ), n + m - m = n
+: add_sub_cancel : ∀ (a b : ?M_1), a + b - b = a
+
 We can prevent the shorter alias from being created by using the
 =protected= keyword:
 #+BEGIN_SRC lean
@@ -314,6 +365,10 @@ open foo
 -- check bar -- error
 check foo.bar
 #+END_SRC
+
+#+RESULTS:
+: foo.bar : ℕ
+
 This is often used for names like =nat.rec_on= and =nat.induction_on=,
 to prevent overloading of common names.
 
@@ -321,15 +376,24 @@ The =open= command admits variations. The command
 #+BEGIN_SRC lean
 open nat (succ add sub)
 #+END_SRC
+
+#+RESULTS:
+
 creates aliases for only the identifiers listed. The command
 #+BEGIN_SRC lean
 open nat (hiding succ add sub)
 #+END_SRC
+
+#+RESULTS:
+
 creates aliases for everything in the =nat= namespace /except/ the
 identifiers lists. The command
 #+BEGIN_SRC lean
 open nat (renaming induction_on → induction_on) (renaming add → plus) (hiding succ sub)
 #+END_SRC
+
+#+RESULTS:
+
 creates aliases for everything in the =nat= namespace except =succ=
 and =sub=, renaming =nat.add= to =plus=, and renaming the protected
 definition =nat.induction_on= to =induction_on=.
@@ -339,6 +403,9 @@ another, or to the top level. The command
 #+BEGIN_SRC lean
 export nat (succ add sub)
 #+END_SRC
+
+#+RESULTS:
+
 creates aliases for =succ=, =add=, and =sub= in the current namespace,
 so that whenever the namespace is open, these aliases are
 available. If this command is used outside a namespace, the aliases
@@ -384,6 +451,9 @@ theorem nat.dvd_refl (n : ℕ) : n ∣ n :=
 
 example : 5 ∣ 5 := by simp
 #+END_SRC
+
+#+RESULTS:
+
 Here the simplifier proves =5 ∣ 5= by rewriting it to =true=. Lean
 allows the alternative annotation =@[simp]= before a theorem to assign
 the attribute:
@@ -398,6 +468,9 @@ theorem nat.dvd_refl (n : ℕ) : n ∣ n :=
 ⟨1, by simp⟩
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 One can also assign the attribute any time after the definition takes
 place:
 #+BEGIN_SRC lean
@@ -412,6 +485,9 @@ theorem nat.dvd_refl (n : ℕ) : n ∣ n :=
 attribute [simp] nat.dvd_refl
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 In all these cases, the attribute remains in effect in any file that
 imports the one in which the declaration occurs. But adding the
 =local= modifier restricts the scope:
@@ -433,6 +509,9 @@ end
 -- example : 5 ∣ 5 := by simp
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 In fact, the =instance= command works by automatically generating a
 theorem name and assigning an =[instance]= attribute to it. The
 declaration can also be made local:
@@ -456,6 +535,9 @@ end
 -- check 5 ∣ 5
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 For yet another example, the =reflexivity= tactic makes use of objects
 in the environment that have been tagged with the =[refl]= attribute:
 #+BEGIN_SRC lean
@@ -472,6 +554,9 @@ example : 5 ∣ 5 :=
 by reflexivity
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 The scope of the =[refl]= attribute can similarly be restricted using
 the =local= modifier, as above.
 
@@ -539,6 +624,9 @@ theorem th3 (reflr : reflexive r) (euclr : euclidean r) : transitive r :=
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 The results are broken down into small steps: =th1= shows that a
 relation that is reflexive and euclidean is symmetric, and =th2= shows
 that a relation that is symmetric and euclidean is transitive. Then
@@ -571,6 +659,8 @@ th2 (th1 reflr euclr) euclr
 -- END
 end hide
 #+END_SRC
+
+#+RESULTS:
 
 There is a third kind of implicit argument that is denoted with square
 brackets, =[= and =]=. These are used for type classes, as explained
@@ -606,6 +696,11 @@ infix `<*>`:50 := mul_square
 eval [2 ** 3]
 eval 2 <*> 3
 #+END_SRC
+
+#+RESULTS:
+: 7
+: 36
+
 In this example, the =notation= command defines a complex binary
 notation for multiplying and adding one. The =infix= command declares
 a new infix operator, with precedence 50, which associates to the
@@ -622,6 +717,8 @@ in the current file, and moreover, within the scope of the current
 local notation `[` a `**` b `]` := a * b + 1
 local infix `<*>`:50 := λ a b : ℕ, a * a * b * b
 #+END_SRC
+
+#+RESULTS:
 
 Lean's stanard library declares the left-binding powers of a number of
 common symbols.
@@ -641,6 +738,10 @@ notation [parsing_only] `[` a `**` b `]` := a * b + 1
 variables a b : ℕ
 check [a ** b]
 #+END_SRC
+
+#+RESULTS:
+: a * b + 1 : ℕ
+
 The output of the =check= command displays the expression as =a * b +
 1=. Lean also provides mechanisms for iterated notation, such as =[a,
 b, c, d, e]= to denote a list with the indicated elements. See the
@@ -703,6 +804,11 @@ check (mod_trans : ∀ (m a b c : ℤ),
 -- END
 #+END_SRC
 
+#+RESULTS:
+: mod_refl : ∀ (m : ℤ) (a : ℤ), mod_equiv m a a
+: mod_symm : ∀ (m : ℤ) (a b : ℤ), mod_equiv m a b → mod_equiv m b a
+: mod_trans : ∀ (m : ℤ) (a b c : ℤ), mod_equiv m a b → mod_equiv m b c → mod_equiv m a c
+
 ** Coercions
 :PROPERTIES:
   :CUSTOM_ID: Coercions
@@ -721,6 +827,12 @@ check i + m      -- i + ↑m : ℤ
 check i + m + j  -- i + ↑m + j : ℤ
 check i + m + n  -- i + ↑m + ↑n : ℤ
 #+END_SRC
+
+#+RESULTS:
+: i + ↑m : ℤ
+: i + ↑m + j : ℤ
+: i + ↑m + ↑n : ℤ
+
 Notice that the output of the =check= command shows that a coercion
 has been inserted by printing an arrow. The latter is notation for
 the function =coe=; you can type the unicode arrow with =\u= or use
@@ -738,6 +850,11 @@ check ↑(m + n) + i  -- ↑(m + n) + i : ℤ
 check ↑m + ↑n + i   -- ↑m + ↑n + i : ℤ
 -- END
 #+END_SRC
+
+#+RESULTS:
+: ↑m + i : ℤ
+: ↑(m + n) + i : ℤ
+: ↑m + ↑n + i : ℤ
 
 In fact, Lean allows various kinds of coercions using type classes;
 for details, see [[file:10_Type_Classes.org::#Coercions_using_Type_Classes][Section 10.6]].
@@ -787,8 +904,34 @@ eval (foo @nat.zero)
 print foo
 #+END_SRC
 
+#+RESULTS:
+#+begin_example
+eq : ?M_1 → ?M_1 → Prop
+eq : Π {α : Sort u_1}, α → α → Prop
+eq.symm : ?M_2 = ?M_3 → ?M_3 = ?M_2
+eq.symm : ∀ {α : Sort u_1} {a b : α}, a = b → b = a
+@[symm]
+theorem eq.symm : ∀ {α : Sort u} {a b : α}, a = b → b = a :=
+λ {α : Sort u} {a b : α} (h : a = b), h ▸ rfl
+and : Prop → Prop → Prop
+and.intro : ?M_1 → ?M_2 → ?M_1 ∧ ?M_2
+and.intro : ∀ {a b : Prop}, a → b → a ∧ b
+add : ?M_1 → ?M_1 → ?M_1
+add : Π {α : Type u_1} [_inst_1 : has_add α], α → α → α
+5
+@[pattern]
+def add : Π {α : Type u} [_inst_1 : has_add α], α → α → α :=
+λ {α : Type u} [_inst_1 : has_add α], has_add.add
+foo : ?M_1 → ?M_1
+foo : Π {α : Type}, α → α
+λ (x : ?M_1), x
+0
+def foo : Π {α : Type}, α → α :=
+λ {α : Type} (x : α), x
+#+end_example
+
 There are other useful =print= commands:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 print definition             : display definition
 print inductive              : display an inductive type and its constructors
 print notation               : display all notation
@@ -799,7 +942,7 @@ print prefix <namespace>     : display all declarations in the namespace
 print classes                : display all classes
 print instances <class name> : display all instances of the given class
 print fields <structure>     : display all "fields" of a structure
-#+END_SRC
+#+END_EXAMPLE
 We will discuss inductive types, structures, classes, instances in the
 next four chapters. Here are examples of how these commands are used:
 #+BEGIN_SRC lean
@@ -813,6 +956,712 @@ print classes
 print instances ring
 print fields ring
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+`∃!`:1 binders `,`:0 (scoped 0) := #0
+`Σ`:1 binders `,`:0 (scoped 0) := #0
+`⟨`:1024 builtin := #0
+`⟦`:1024 _:1 `⟧`:0 := quotient.mk #0
+`[`:1024 (foldr* 0 `, ` `]`) := #0
+`fun`:0 builtin := #0
+`∅`:1024 := emptyc
+`@@`:1024 builtin := #0
+`by`:0 builtin := #0
+`Σ'`:1 binders `,`:0 (scoped 0) := #0
+`if`:0 builtin := #0
+`calc`:0 builtin := #0
+`suppose`:0 builtin := #0
+`Prop`:1024 := Prop
+`¬`:40 _:40 := not #0
+`↑`:1024 _:1024 := coe #0
+`show`:0 builtin := #0
+`⇑`:1024 _:1024 := coe_fn #0
+`ℤ`:1024 := int
+`command`:1024 := tactic unit
+`match`:0 builtin := #0
+`{`:1024 builtin := #0
+```:1024 builtin := #0
+`𝒫`:100 _:100 := set.powerset #0
+`↥`:1024 _:1024 := coe_sort #0
+`-[1+`:1 _:1 `]`:0 := int.neg_succ_of_nat #0
+`suffices`:0 builtin := #0
+`@`:1024 builtin := #0
+`Sort*`:1024 builtin := #0
+`Pi`:0 binders `,`:0 (scoped 0) := #0
+`let`:0 builtin := #0
+`ℕ`:1024 := nat
+``(`:1024 builtin := #0
+``[`:1024 builtin := #0
+`∃`:1 binders `,`:0 (scoped 0) := #0
+`(`:1024 builtin := #0
+`exists`:1 binders `,`:0 (scoped 0) := #0
+`‹`:1 _:1 `›`:1 := show #0, from pre_monad.seq (tactic.save_info (_ 590 33)) (tactic.step tactic.assumption)
+`(:`:1024 _:0 `:)`:0 builtin := #0
+`Sort`:1024 builtin := #0
+`sorry`:1024 builtin := #0
+```(`:1024 builtin := #0
+`dec_trivial`:1024 := of_as_true (pre_monad.seq (tactic.save_info (_ 824 41)) (tactic.step tactic.triv))
+`Type`:1024 builtin := #0
+`%%`:1024 builtin := #0
+`do`:0 builtin := #0
+`Type*`:1024 builtin := #0
+`-`:65 _:100 := neg #0
+`()`:1024 builtin := #0
+`have`:0 builtin := #0
+`begin`:1024 builtin := #0
+_ `∩`:70 _:70 := inter #1 #0
+_ `⊂`:50 _:50 := ssubset #1 #0
+_ `≥`:50 _:50 := ge #1 #0
+_ `∈`:50 _:50 := mem #1 #0
+_ `<`:50 _:50 := lt #1 #0
+_ `>>=`:2 _:2 := bind #1 #0
+_ `=ₐ`:50 _:50 := eq (expr.alpha_eqv #1 #0) bool.tt
+_ `on`:2 _:2 := function.on_fun #1 #0
+_ `×`:35 _:34 := prod #1 #0
+_ `<|`:1 _:0 := option.lhoare #1 #0
+_ `==`:50 _:50 := heq #1 #0
+_ `\`:70 _:70 := sdiff #1 #0
+_ `>=`:50 _:50 := ge #1 #0
+_ `▸`:75 _:74 := eq.subst #1 #0
+_ `<=`:50 _:50 := le #1 #0
+_ `*`:70 _:70 := mul #1 #0
+_ `>=>`:2 _:2 := (λ (s : _) (t : _) (a : _), bind (s a) t) #1 #0
+_ `<=<`:2 _:2 := (λ (t : _) (s : _) (a : _), bind (s a) t) #1 #0
+_ `∨`:30 _:29 := or #1 #0
+_ `⊇`:50 _:50 := superset #1 #0
+_ `<*`:2 _:2 := seq_left #1 #0
+_ `∘`:90 _:89 := function.comp #1 #0
+_ `=?=`:50 _:50 := unification_constraint.mk #1 #0
+_ `<->`:20 _:20 := iff #1 #0
+_ `∣`:50 _:50 := dvd #1 #0
+_ `≠`:50 _:50 := ne #1 #0
+_ `∉`:50 _:50 := not (mem #1 #0)
+_ `∘'`:80 _:79 := function.dcomp #1 #0
+_ `&&`:70 _:70 := band #1 #0
+_ `|>`:1 _:0 := option.rhoare #1 #0
+_ `∧`:35 _:34 := and #1 #0
+_ `.1`:1025 builtin := #0
+_ `<*>`:2 _:2 := seq_app #1 #0
+_ `;`:1 _:1 := andthen #1 #0
+_ `>>[tactic]`:2 _:2 := interaction_monad_seq #1 #0
+_ `>`:50 _:50 := gt #1 #0
+_ `↔`:20 _:20 := iff #1 #0
+_ `::`:67 _:66 := list.cons #1 #0
+_ `∪`:65 _:65 := union #1 #0
+_ `||`:65 _:65 := bor #1 #0
+_ `=<<`:2 _:2 := (λ (u : _) (v : _), bind v u) #1 #0
+_ `≈`:50 _:50 := setoid.r #1 #0
+_ `+`:65 _:65 := add #1 #0
+_ `⁻¹`:1034 := inv #0
+_ `++`:65 _:65 := append #1 #0
+_ `%`:70 _:70 := mod #1 #0
+_ `>>`:2 _:2 := pre_monad.and_then #1 #0
+_ `≟`:50 _:50 := unification_constraint.mk #1 #0
+_ `\/`:30 _:29 := or #1 #0
+_ `$`:1 _:0 := #1 #0
+_ `.5`:1025 builtin := #0
+_ `⊃`:50 _:50 := ssuperset #1 #0
+_ `=`:50 _:50 := eq #1 #0
+_ `<|>`:2 _:1 := orelse #1 #0
+_ `.4`:1025 builtin := #0
+_ `<.>`:65 _:65 := mk_str_name #1 #0
+_ `<$>`:100 _:99 := fmap #1 #0
+_ `.8`:1025 builtin := #0
+_ `.9`:1025 builtin := #0
+_ `⊕`:30 _:29 := sum #1 #0
+_ `.2`:1025 builtin := #0
+_ `-[`:1 _:1 `]-`:1 _:1 := function.combine #2 #1 #0
+_ `.6`:1025 builtin := #0
+_ `*>`:2 _:2 := seq_right #1 #0
+_ `.3`:1025 builtin := #0
+_ `->`:25 _:24 := #1 → #2
+_ `-`:65 _:65 := sub #1 #0
+_ `/\`:35 _:34 := and #1 #0
+_ `>>=[tactic]`:2 _:2 := interaction_monad_bind #1 #0
+_ `~>`:1025 builtin := #0
+_ `≤`:50 _:50 := le #1 #0
+_ `.7`:1025 builtin := #0
+_ `⊆`:50 _:50 := subset #1 #0
+_ `/`:70 _:70 := div #1 #0
+`-`:65 _:100 := neg #0
+_ `*`:70 _:70 := mul #1 #0
+_ `+`:65 _:65 := add #1 #0
+_ `-`:65 _:65 := sub #1 #0
+quot.sound : ∀ {α : Type u} {r : α → α → Prop} {a b : α}, r a b → quot.mk r a = quot.mk r b
+classical.strong_indefinite_description : Π {a : Sort u} (p : a → Prop), nonempty a → {x // (∃ (y : a), p y) → p x}
+propext : ∀ {a b : Prop}, (a ↔ b) → a = b
+⟨⟩
+nat : Type
+nat.add : ℕ → ℕ → ℕ
+nat.add._main : ℕ → ℕ → ℕ
+nat.add._main.equations._eqn_1 : ∀ (a : ℕ), nat.add._main a 0 = a
+nat.add._main.equations._eqn_2 : ∀ (a b : ℕ), nat.add._main a (nat.succ b) = nat.succ (nat.add._main a b)
+nat.add.equations._eqn_1 : ∀ (a : ℕ), nat.add a 0 = a
+nat.add.equations._eqn_2 : ∀ (a b : ℕ), nat.add a (nat.succ b) = nat.succ (nat.add a b)
+nat.add_assoc : ∀ (n m k : ℕ), n + m + k = n + (m + k)
+nat.add_comm : ∀ (n m : ℕ), n + m = m + n
+nat.add_comm_monoid : add_comm_monoid ℕ
+nat.add_comm_monoid.equations._eqn_1 : nat.add_comm_monoid = semiring.to_add_comm_monoid ℕ
+nat.add_comm_semigroup : add_comm_semigroup ℕ
+nat.add_comm_semigroup.equations._eqn_1 : nat.add_comm_semigroup = add_comm_monoid.to_add_comm_semigroup ℕ
+nat.add_le_add_left : ∀ {n m : ℕ}, n ≤ m → ∀ (k : ℕ), k + n ≤ k + m
+nat.add_le_add_right : ∀ {n m : ℕ}, n ≤ m → ∀ (k : ℕ), n + k ≤ m + k
+nat.add_left_cancel : ∀ {n m k : ℕ}, n + m = n + k → m = k
+nat.add_left_comm : ∀ (n m k : ℕ), n + (m + k) = m + (n + k)
+nat.add_lt_add_left : ∀ {n m : ℕ}, n < m → ∀ (k : ℕ), k + n < k + m
+nat.add_lt_add_right : ∀ {n m : ℕ}, n < m → ∀ (k : ℕ), n + k < m + k
+nat.add_monoid : add_monoid ℕ
+nat.add_monoid.equations._eqn_1 : nat.add_monoid = add_comm_monoid.to_add_monoid ℕ
+nat.add_one_eq_succ : ∀ (n : ℕ), n + 1 = nat.succ n
+nat.add_right_cancel : ∀ {n m k : ℕ}, n + m = k + m → n = k
+nat.add_self_ne_one : ∀ (n : ℕ), n + n ≠ 1
+nat.add_semigroup : add_semigroup ℕ
+nat.add_semigroup.equations._eqn_1 : nat.add_semigroup = add_monoid.to_add_semigroup ℕ
+nat.add_sub_add_left : ∀ (k n m : ℕ), k + n - (k + m) = n - m
+nat.add_sub_add_right : ∀ (n k m : ℕ), n + k - (m + k) = n - m
+nat.add_sub_assoc : ∀ {m k : ℕ}, k ≤ m → ∀ (n : ℕ), n + m - k = n + (m - k)
+nat.add_sub_cancel : ∀ (n m : ℕ), n + m - m = n
+nat.add_sub_cancel_left : ∀ (n m : ℕ), n + m - n = m
+nat.add_sub_of_le : ∀ {n m : ℕ}, n ≤ m → n + (m - n) = m
+nat.add_succ : ∀ (n m : ℕ), n + nat.succ m = nat.succ (n + m)
+nat.add_zero : ∀ (n : ℕ), n + 0 = n
+nat.below : Π {C : ℕ → Sort l}, ℕ → Sort (max 1 l)
+nat.binduction_on : ∀ {C : ℕ → Prop} (n : ℕ), (∀ (n : ℕ), nat.ibelow n → C n) → C n
+nat.bit0_inj : ∀ {n m : ℕ}, bit0 n = bit0 m → n = m
+nat.bit0_lt : ∀ {n m : ℕ}, n < m → bit0 n < bit0 m
+nat.bit0_lt_bit1 : ∀ {n m : ℕ}, n ≤ m → bit0 n < bit1 m
+nat.bit0_ne : ∀ {n m : ℕ}, n ≠ m → bit0 n ≠ bit0 m
+nat.bit0_ne_bit1 : ∀ (n m : ℕ), bit0 n ≠ bit1 m
+nat.bit0_ne_one : ∀ (n : ℕ), bit0 n ≠ 1
+nat.bit0_ne_zero : ∀ {n : ℕ}, n ≠ 0 → bit0 n ≠ 0
+nat.bit0_succ_eq : ∀ (n : ℕ), bit0 (nat.succ n) = nat.succ (nat.succ (bit0 n))
+nat.bit1_eq_succ_bit0 : ∀ (n : ℕ), bit1 n = nat.succ (bit0 n)
+nat.bit1_inj : ∀ {n m : ℕ}, bit1 n = bit1 m → n = m
+nat.bit1_lt : ∀ {n m : ℕ}, n < m → bit1 n < bit1 m
+nat.bit1_lt_bit0 : ∀ {n m : ℕ}, n < m → bit1 n < bit0 m
+nat.bit1_ne : ∀ {n m : ℕ}, n ≠ m → bit1 n ≠ bit1 m
+nat.bit1_ne_bit0 : ∀ (n m : ℕ), bit1 n ≠ bit0 m
+nat.bit1_ne_one : ∀ {n : ℕ}, n ≠ 0 → bit1 n ≠ 1
+nat.bit1_ne_zero : ∀ (n : ℕ), bit1 n ≠ 0
+nat.bit1_succ_eq : ∀ (n : ℕ), bit1 (nat.succ n) = nat.succ (nat.succ (bit1 n))
+nat.brec_on : Π {C : ℕ → Sort l} (n : ℕ), (Π (n : ℕ), nat.below n → C n) → C n
+nat.cases_on : Π {C : ℕ → Sort l} (n : ℕ), C 0 → (Π (a : ℕ), C (nat.succ a)) → C n
+nat.cmp : ℕ → ℕ → ordering
+nat.cmp.equations._eqn_1 : ∀ (a b : ℕ), nat.cmp a b = ite (a < b) ordering.lt (ite (a = b) ordering.eq ordering.gt)
+nat.comm_monoid : comm_monoid ℕ
+nat.comm_monoid.equations._eqn_1 : nat.comm_monoid = comm_semiring.to_comm_monoid ℕ
+nat.comm_semigroup : comm_semigroup ℕ
+nat.comm_semigroup.equations._eqn_1 : nat.comm_semigroup = comm_monoid.to_comm_semigroup ℕ
+nat.comm_semiring : comm_semiring ℕ
+nat.comm_semiring.equations._eqn_1 : nat.comm_semiring = {add := nat.add,
+ add_assoc := nat.add_assoc,
+ zero := 0,
+ zero_add := nat.zero_add,
+ add_zero := nat.add_zero,
+ add_comm := nat.add_comm,
+ mul := nat.mul,
+ mul_assoc := nat.mul_assoc,
+ one := 1,
+ one_mul := nat.one_mul,
+ mul_one := nat.mul_one,
+ left_distrib := nat.left_distrib,
+ right_distrib := nat.right_distrib,
+ zero_mul := nat.zero_mul,
+ mul_zero := nat.mul_zero,
+ mul_comm := nat.mul_comm}
+nat.decidable_eq : decidable_eq ℕ
+nat.decidable_eq._main : decidable_eq ℕ
+nat.decidable_eq._main.equations._eqn_1 : nat.decidable_eq._main 0 0 = is_true rfl
+nat.decidable_eq._main.equations._eqn_2 : ∀ (y : ℕ), nat.decidable_eq._main 0 (nat.succ y) = is_false (λ (h : 0 = nat.succ y), nat.no_confusion h)
+nat.decidable_eq._main.equations._eqn_3 : ∀ (x : ℕ), nat.decidable_eq._main (nat.succ x) 0 = is_false (λ (h : nat.succ x = 0), nat.no_confusion h)
+nat.decidable_eq._main.equations._eqn_4 : ∀ (x y : ℕ),
+  nat.decidable_eq._main (nat.succ x) (nat.succ y) = nat.decidable_eq._match_1 x y (nat.decidable_eq._main x y)
+nat.decidable_eq._match_1 : Π (x y : ℕ), decidable (x = y) → decidable (nat.succ x = nat.succ y)
+nat.decidable_eq._match_1.equations._eqn_1 : ∀ (x y : ℕ) (xney : ¬x = y),
+  nat.decidable_eq._match_1 x y (is_false xney) = is_false
+    (λ (h : nat.succ x = nat.succ y), nat.no_confusion h (λ (xeqy : x = y), absurd xeqy xney))
+nat.decidable_eq._match_1.equations._eqn_2 : ∀ (x y : ℕ) (xeqy : x = y), nat.decidable_eq._match_1 x y (is_true xeqy) = is_true (xeqy ▸ eq.refl (nat.succ x))
+nat.decidable_eq.equations._eqn_1 : nat.decidable_eq 0 0 = is_true rfl
+nat.decidable_eq.equations._eqn_2 : ∀ (y : ℕ), nat.decidable_eq 0 (nat.succ y) = is_false (λ (h : 0 = nat.succ y), nat.no_confusion h)
+nat.decidable_eq.equations._eqn_3 : ∀ (x : ℕ), nat.decidable_eq (nat.succ x) 0 = is_false (λ (h : nat.succ x = 0), nat.no_confusion h)
+nat.decidable_eq.equations._eqn_4 : ∀ (x y : ℕ), nat.decidable_eq (nat.succ x) (nat.succ y) = nat.decidable_eq._match_1 x y (nat.decidable_eq x y)
+nat.decidable_le : Π (a b : ℕ), decidable (a ≤ b)
+nat.decidable_le._main : Π (a b : ℕ), decidable (a ≤ b)
+nat.decidable_le._main.equations._eqn_1 : ∀ (b : ℕ), nat.decidable_le._main 0 b = is_true (nat.zero_le b)
+nat.decidable_le._main.equations._eqn_2 : ∀ (a : ℕ), nat.decidable_le._main (a + 1) 0 = is_false (nat.not_succ_le_zero a)
+nat.decidable_le._main.equations._eqn_3 : ∀ (a b : ℕ), nat.decidable_le._main (a + 1) (b + 1) = nat.decidable_le._match_1 a b (nat.decidable_le._main a b)
+nat.decidable_le._match_1 : Π (a b : ℕ), decidable (a ≤ b) → decidable (a + 1 ≤ b + 1)
+nat.decidable_le._match_1.equations._eqn_1 : ∀ (a b : ℕ) (h : ¬a ≤ b),
+  nat.decidable_le._match_1 a b (is_false h) = is_false (λ (a_1 : a + 1 ≤ b + 1), h (nat.le_of_succ_le_succ a_1))
+nat.decidable_le._match_1.equations._eqn_2 : ∀ (a b : ℕ) (h : a ≤ b), nat.decidable_le._match_1 a b (is_true h) = is_true (nat.succ_le_succ h)
+nat.decidable_le.equations._eqn_1 : ∀ (b : ℕ), nat.decidable_le 0 b = is_true (nat.zero_le b)
+nat.decidable_le.equations._eqn_2 : ∀ (a : ℕ), nat.decidable_le (a + 1) 0 = is_false (nat.not_succ_le_zero a)
+nat.decidable_le.equations._eqn_3 : ∀ (a b : ℕ), nat.decidable_le (a + 1) (b + 1) = nat.decidable_le._match_1 a b (nat.decidable_le a b)
+nat.decidable_linear_ordered_semiring : decidable_linear_ordered_semiring ℕ
+nat.decidable_linear_ordered_semiring.equations._eqn_1 : nat.decidable_linear_ordered_semiring = {add := comm_semiring.add nat.comm_semiring,
+ add_assoc := comm_semiring.add_assoc nat.comm_semiring,
+ zero := comm_semiring.zero ℕ nat.comm_semiring,
+ zero_add := comm_semiring.zero_add nat.comm_semiring,
+ add_zero := comm_semiring.add_zero nat.comm_semiring,
+ add_comm := comm_semiring.add_comm nat.comm_semiring,
+ mul := comm_semiring.mul nat.comm_semiring,
+ mul_assoc := comm_semiring.mul_assoc nat.comm_semiring,
+ one := comm_semiring.one ℕ nat.comm_semiring,
+ one_mul := comm_semiring.one_mul nat.comm_semiring,
+ mul_one := comm_semiring.mul_one nat.comm_semiring,
+ left_distrib := comm_semiring.left_distrib nat.comm_semiring,
+ right_distrib := comm_semiring.right_distrib nat.comm_semiring,
+ zero_mul := comm_semiring.zero_mul nat.comm_semiring,
+ mul_zero := comm_semiring.mul_zero nat.comm_semiring,
+ add_left_cancel := nat.add_left_cancel,
+ add_right_cancel := nat.add_right_cancel,
+ le := nat.le,
+ le_refl := nat.le_refl,
+ le_trans := nat.le_trans,
+ le_antisymm := nat.le_antisymm,
+ lt := nat.lt,
+ le_of_lt := nat.le_of_lt,
+ lt_of_lt_of_le := nat.lt_of_lt_of_le,
+ lt_of_le_of_lt := nat.lt_of_le_of_lt,
+ lt_irrefl := nat.lt_irrefl,
+ add_le_add_left := nat.add_le_add_left,
+ le_of_add_le_add_left := nat.le_of_add_le_add_left,
+ add_lt_add_left := nat.add_lt_add_left,
+ lt_of_add_lt_add_left := nat.lt_of_add_lt_add_left,
+ mul_le_mul_of_nonneg_left := λ (a b c : ℕ) (h₁ : a ≤ b) (h₂ : 0 ≤ c), nat.mul_le_mul_left c h₁,
+ mul_le_mul_of_nonneg_right := λ (a b c : ℕ) (h₁ : a ≤ b) (h₂ : 0 ≤ c), nat.mul_le_mul_right c h₁,
+ mul_lt_mul_of_pos_left := nat.mul_lt_mul_of_pos_left,
+ mul_lt_mul_of_pos_right := nat.mul_lt_mul_of_pos_right,
+ le_iff_lt_or_eq := nat.le_iff_lt_or_eq,
+ le_total := nat.le_total,
+ zero_lt_one := nat.zero_lt_succ 0,
+ decidable_lt := nat.decidable_lt,
+ decidable_le := nat.decidable_le,
+ decidable_eq := nat.decidable_eq}
+nat.decidable_lt : Π (a b : ℕ), decidable (a < b)
+nat.decidable_lt.equations._eqn_1 : nat.decidable_lt = λ (a b : ℕ), nat.decidable_le (nat.succ a) b
+nat.distrib : distrib ℕ
+nat.distrib.equations._eqn_1 : nat.distrib = semiring.to_distrib ℕ
+nat.div : ℕ → ℕ → ℕ
+nat.div.equations._eqn_1 : nat.div = well_founded.fix nat.lt_wf div.F
+nat.div_def : ∀ (x y : ℕ),
+  x / y = dite (0 < y ∧ y ≤ x) (λ (h : 0 < y ∧ y ≤ x), (x - y) / y + 1) (λ (h : ¬(0 < y ∧ y ≤ x)), 0)
+nat.eq_or_lt_of_le : ∀ {a b : ℕ}, a ≤ b → a = b ∨ a < b
+nat.eq_or_lt_of_not_lt : ∀ {a b : ℕ}, ¬a < b → a = b ∨ b < a
+nat.eq_zero_of_add_eq_zero_left : ∀ {n m : ℕ}, n + m = 0 → m = 0
+nat.eq_zero_of_add_eq_zero_right : ∀ {n m : ℕ}, n + m = 0 → n = 0
+nat.eq_zero_or_eq_zero_of_mul_eq_zero : ∀ {n m : ℕ}, n * m = 0 → n = 0 ∨ m = 0
+nat.has_add : has_add ℕ
+nat.has_add.equations._eqn_1 : nat.has_add = {add := nat.add}
+nat.has_div : has_div ℕ
+nat.has_div.equations._eqn_1 : nat.has_div = {div := nat.div}
+nat.has_le : has_le ℕ
+nat.has_le.equations._eqn_1 : nat.has_le = {le := nat.less_than_or_equal}
+nat.has_lt : has_lt ℕ
+nat.has_lt.equations._eqn_1 : nat.has_lt = {lt := nat.lt}
+nat.has_mod : has_mod ℕ
+nat.has_mod.equations._eqn_1 : nat.has_mod = {mod := nat.mod}
+nat.has_mul : has_mul ℕ
+nat.has_mul.equations._eqn_1 : nat.has_mul = {mul := nat.mul}
+nat.has_one : has_one ℕ
+nat.has_one.equations._eqn_1 : nat.has_one = {one := 1}
+nat.has_ordering : has_ordering ℕ
+nat.has_ordering.equations._eqn_1 : nat.has_ordering = {cmp := nat.cmp}
+nat.has_quote : has_quote ℕ
+nat.has_sizeof : has_sizeof ℕ
+nat.has_sizeof.equations._eqn_1 : nat.has_sizeof = {sizeof := λ (a : ℕ), a}
+nat.has_sub : has_sub ℕ
+nat.has_sub.equations._eqn_1 : nat.has_sub = {sub := nat.sub}
+nat.has_to_format : has_to_format ℕ
+nat.has_to_string : has_to_string ℕ
+nat.has_to_string.equations._eqn_1 : nat.has_to_string = {to_string := nat.to_string}
+nat.has_zero : has_zero ℕ
+nat.has_zero.equations._eqn_1 : nat.has_zero = {zero := 0}
+nat.ibelow : Π {C : ℕ → Prop}, ℕ → Prop
+nat.induction_on : ∀ {C : ℕ → Prop} (n : ℕ), C 0 → (∀ (a : ℕ), C a → C (nat.succ a)) → C n
+nat.inhabited : inhabited ℕ
+nat.inhabited.equations._eqn_1 : nat.inhabited = {default := 0}
+nat.le : ℕ → ℕ → Prop
+nat.le.dest : ∀ {n m : ℕ}, n ≤ m → (∃ (k : ℕ), n + k = m)
+nat.le.equations._eqn_1 : ∀ (n m : ℕ), nat.le n m = nat.less_than_or_equal n m
+nat.le.intro : ∀ {n m k : ℕ}, n + k = m → n ≤ m
+nat.le_add_left : ∀ (n m : ℕ), n ≤ m + n
+nat.le_add_right : ∀ (n k : ℕ), n ≤ n + k
+nat.le_antisymm : ∀ {n m : ℕ}, n ≤ m → m ≤ n → n = m
+nat.le_iff_lt_or_eq : ∀ (m n : ℕ), m ≤ n ↔ m < n ∨ m = n
+nat.le_lt_antisymm : ∀ {n m : ℕ}, n ≤ m → m < n → false
+nat.le_of_add_le_add_left : ∀ {k n m : ℕ}, k + n ≤ k + m → n ≤ m
+nat.le_of_eq : ∀ {n m : ℕ}, n = m → n ≤ m
+nat.le_of_eq_or_lt : ∀ {a b : ℕ}, a = b ∨ a < b → a ≤ b
+nat.le_of_lt : ∀ {n m : ℕ}, n < m → n ≤ m
+nat.le_of_lt_or_eq : ∀ {m n : ℕ}, m < n ∨ m = n → m ≤ n
+nat.le_of_lt_succ : ∀ {m n : ℕ}, m < nat.succ n → m ≤ n
+nat.le_of_succ_le : ∀ {n m : ℕ}, nat.succ n ≤ m → n ≤ m
+nat.le_of_succ_le_succ : ∀ {n m : ℕ}, nat.succ n ≤ nat.succ m → n ≤ m
+nat.le_refl : ∀ (a : ℕ), a ≤ a
+nat.le_refl.equations._eqn_1 : nat.le_refl = nat.less_than_or_equal.refl
+nat.le_succ : ∀ (n : ℕ), n ≤ nat.succ n
+nat.le_succ_iff_true : ∀ (n : ℕ), n ≤ nat.succ n ↔ true
+nat.le_succ_of_le : ∀ {n m : ℕ}, n ≤ m → n ≤ nat.succ m
+nat.le_succ_of_pred_le : ∀ {n m : ℕ}, nat.pred n ≤ m → n ≤ nat.succ m
+nat.le_total : ∀ {m n : ℕ}, m ≤ n ∨ n ≤ m
+nat.le_trans : ∀ {n m k : ℕ}, n ≤ m → m ≤ k → n ≤ k
+nat.left_distrib : ∀ (n m k : ℕ), n * (m + k) = n * m + n * k
+nat.less_than_or_equal : ℕ → ℕ → Prop
+nat.less_than_or_equal.cases_on : ∀ {a : ℕ} {C : ℕ → Prop} {a_1 : ℕ},
+  nat.less_than_or_equal a a_1 → C a → (∀ {b : ℕ}, nat.less_than_or_equal a b → C (nat.succ b)) → C a_1
+nat.less_than_or_equal.induction_on : ∀ {a : ℕ} {C : ℕ → Prop} {a_1 : ℕ},
+  nat.less_than_or_equal a a_1 →
+  C a → (∀ {b : ℕ}, nat.less_than_or_equal a b → C b → C (nat.succ b)) → C a_1
+nat.less_than_or_equal.rec : ∀ {a : ℕ} {C : ℕ → Prop},
+  C a →
+  (∀ {b : ℕ}, nat.less_than_or_equal a b → C b → C (nat.succ b)) →
+  ∀ {a_1 : ℕ}, nat.less_than_or_equal a a_1 → C a_1
+nat.less_than_or_equal.rec_on : ∀ {a : ℕ} {C : ℕ → Prop} {a_1 : ℕ},
+  nat.less_than_or_equal a a_1 →
+  C a → (∀ {b : ℕ}, nat.less_than_or_equal a b → C b → C (nat.succ b)) → C a_1
+nat.less_than_or_equal.refl : ∀ (a : ℕ), nat.less_than_or_equal a a
+nat.less_than_or_equal.step : ∀ {a b : ℕ}, nat.less_than_or_equal a b → nat.less_than_or_equal a (nat.succ b)
+nat.lt : ℕ → ℕ → Prop
+nat.lt.base : ∀ (n : ℕ), n < nat.succ n
+nat.lt.base.equations._eqn_1 : ∀ (n : ℕ), nat.lt.base n = nat.le_refl (nat.succ n)
+nat.lt.equations._eqn_1 : ∀ (n m : ℕ), nat.lt n m = nat.less_than_or_equal (nat.succ n) m
+nat.lt.step : ∀ {n m : ℕ}, n < m → n < nat.succ m
+nat.lt.step.equations._eqn_1 : ∀ {n m : ℕ}, nat.lt.step = nat.less_than_or_equal.step
+nat.lt_add_of_pos_right : ∀ {n k : ℕ}, k > 0 → n < n + k
+nat.lt_by_cases : Π {a b : ℕ} {C : Sort u}, (a < b → C) → (a = b → C) → (b < a → C) → C
+nat.lt_by_cases.equations._eqn_1 : ∀ {a b : ℕ} {C : Sort u} (h₁ : a < b → C) (h₂ : a = b → C) (h₃ : b < a → C),
+  nat.lt_by_cases h₁ h₂ h₃ = nat.lt_ge_by_cases h₁
+    (λ (h₁ : a ≥ b), nat.lt_ge_by_cases h₃ (λ (h : b ≥ a), h₂ (nat.le_antisymm h h₁)))
+nat.lt_ge_by_cases : Π {a b : ℕ} {C : Sort u}, (a < b → C) → (a ≥ b → C) → C
+nat.lt_ge_by_cases.equations._eqn_1 : ∀ {a b : ℕ} {C : Sort u} (h₁ : a < b → C) (h₂ : a ≥ b → C),
+  nat.lt_ge_by_cases h₁ h₂ = decidable.by_cases h₁
+    (λ (h : ¬a < b), h₂ (or.elim (nat.lt_or_ge a b) (λ (a_1 : a < b), absurd a_1 h) (λ (a : a ≥ b), a)))
+nat.lt_irrefl : ∀ (n : ℕ), ¬n < n
+nat.lt_le_antisymm : ∀ {n m : ℕ}, n < m → m ≤ n → false
+nat.lt_of_add_lt_add_left : ∀ {k n m : ℕ}, k + n < k + m → n < m
+nat.lt_of_le_and_ne : ∀ {m n : ℕ}, m ≤ n → m ≠ n → m < n
+nat.lt_of_le_of_lt : ∀ {n m k : ℕ}, n ≤ m → m < k → n < k
+nat.lt_of_lt_of_le : ∀ {n m k : ℕ}, n < m → m ≤ k → n < k
+nat.lt_of_succ_le : ∀ {a b : ℕ}, nat.succ a ≤ b → a < b
+nat.lt_of_succ_lt : ∀ {a b : ℕ}, nat.succ a < b → a < b
+nat.lt_of_succ_lt_succ : ∀ {a b : ℕ}, nat.succ a < nat.succ b → a < b
+nat.lt_or_eq_of_le : ∀ {m n : ℕ}, m ≤ n → m < n ∨ m = n
+nat.lt_or_ge : ∀ (a b : ℕ), a < b ∨ a ≥ b
+nat.lt_self_iff_false : ∀ (n : ℕ), n < n ↔ false
+nat.lt_succ_of_le : ∀ {a b : ℕ}, a ≤ b → a < nat.succ b
+nat.lt_succ_self : ∀ (n : ℕ), n < nat.succ n
+nat.lt_succ_self.equations._eqn_1 : nat.lt_succ_self = nat.self_lt_succ
+nat.lt_succ_self_iff_true : ∀ (n : ℕ), n < nat.succ n ↔ true
+nat.lt_succ_self_iff_true.equations._eqn_1 : nat.lt_succ_self_iff_true = nat.self_lt_succ_iff_true
+nat.lt_trans : ∀ {n m k : ℕ}, n < m → m < k → n < k
+nat.lt_trichotomy : ∀ (a b : ℕ), a < b ∨ a = b ∨ b < a
+nat.lt_wf : well_founded nat.lt
+nat.lt_wf.equations._eqn_1 : nat.lt_wf = well_founded.intro
+  (nat.rec (acc.intro 0 (λ (n : ℕ) (h : n < 0), absurd h (nat.not_lt_zero n)))
+     (λ (n : ℕ) (ih : acc lt n),
+        acc.intro (nat.succ n)
+          (λ (m : ℕ) (h : m < nat.succ n),
+             or.elim (nat.eq_or_lt_of_le (nat.le_of_succ_le_succ h)) (λ (e : m = n), eq.substr e ih) (acc.inv ih))))
+nat.lt_zero_iff_false : ∀ (a : ℕ), a < 0 ↔ false
+nat.min_succ_succ : ∀ (x y : ℕ), min (nat.succ x) (nat.succ y) = nat.succ (min x y)
+nat.min_zero : ∀ (a : ℕ), min a 0 = 0
+nat.min_zero_left : ∀ (a : ℕ), min 0 a = 0
+nat.min_zero_right : ∀ (a : ℕ), min a 0 = 0
+nat.mod : ℕ → ℕ → ℕ
+nat.mod.equations._eqn_1 : nat.mod = well_founded.fix nat.lt_wf mod.F
+nat.mod_def : ∀ (x y : ℕ),
+  x % y = dite (0 < y ∧ y ≤ x) (λ (h : 0 < y ∧ y ≤ x), (x - y) % y) (λ (h : ¬(0 < y ∧ y ≤ x)), x)
+nat.monoid : monoid ℕ
+nat.monoid.equations._eqn_1 : nat.monoid = semiring.to_monoid ℕ
+nat.mul : ℕ → ℕ → ℕ
+nat.mul._main : ℕ → ℕ → ℕ
+nat.mul._main.equations._eqn_1 : ∀ (a : ℕ), nat.mul._main a 0 = 0
+nat.mul._main.equations._eqn_2 : ∀ (a b : ℕ), nat.mul._main a (b + 1) = nat.mul._main a b + a
+nat.mul.equations._eqn_1 : ∀ (a : ℕ), nat.mul a 0 = 0
+nat.mul.equations._eqn_2 : ∀ (a b : ℕ), nat.mul a (b + 1) = nat.mul a b + a
+nat.mul_assoc : ∀ (n m k : ℕ), n * m * k = n * (m * k)
+nat.mul_comm : ∀ (n m : ℕ), n * m = m * n
+nat.mul_le_mul_left : ∀ {n m : ℕ} (k : ℕ), n ≤ m → k * n ≤ k * m
+nat.mul_le_mul_right : ∀ {n m : ℕ} (k : ℕ), n ≤ m → n * k ≤ m * k
+nat.mul_lt_mul_of_pos_left : ∀ {n m k : ℕ}, n < m → k > 0 → k * n < k * m
+nat.mul_lt_mul_of_pos_right : ∀ {n m k : ℕ}, n < m → k > 0 → n * k < m * k
+nat.mul_one : ∀ (n : ℕ), n * 1 = n
+nat.mul_pred_left : ∀ (n m : ℕ), nat.pred n * m = n * m - m
+nat.mul_pred_right : ∀ (n m : ℕ), n * nat.pred m = n * m - n
+nat.mul_self_sub_mul_self_eq : ∀ (a b : ℕ), a * a - b * b = (a + b) * (a - b)
+nat.mul_sub_left_distrib : ∀ (n m k : ℕ), n * (m - k) = n * m - n * k
+nat.mul_sub_right_distrib : ∀ (n m k : ℕ), (n - m) * k = n * k - m * k
+nat.mul_succ : ∀ (n m : ℕ), n * nat.succ m = n * m + n
+nat.mul_zero : ∀ (n : ℕ), n * 0 = 0
+nat.nat.lt_asymm : ∀ {n m : ℕ}, n < m → ¬m < n
+nat.nat_zero_eq_zero : 0 = 0
+nat.no_confusion : Π {P : Sort l} {v1 v2 : ℕ}, v1 = v2 → nat.no_confusion_type P v1 v2
+nat.no_confusion_type : Sort l → ℕ → ℕ → Sort l
+nat.not_lt_zero : ∀ (a : ℕ), ¬a < 0
+nat.not_succ_le_self : ∀ (n : ℕ), ¬nat.succ n ≤ n
+nat.not_succ_le_zero : ∀ (n : ℕ), nat.succ n ≤ 0 → false
+nat.of_num : num → ℕ
+nat.of_num._main : num → ℕ
+nat.of_num._main.equations._eqn_1 : nat.of_num._main 0 = 0
+nat.of_num._main.equations._eqn_2 : ∀ (p : pos_num), nat.of_num._main (num.pos p) = nat.of_pos_num p
+nat.of_num.equations._eqn_1 : nat.of_num 0 = 0
+nat.of_num.equations._eqn_2 : ∀ (p : pos_num), nat.of_num (num.pos p) = nat.of_pos_num p
+nat.of_pos_num : pos_num → ℕ
+nat.of_pos_num._main : pos_num → ℕ
+nat.of_pos_num._main.equations._eqn_1 : nat.of_pos_num._main pos_num.one = 1
+nat.of_pos_num._main.equations._eqn_2 : ∀ (a : pos_num),
+  nat.of_pos_num._main (pos_num.bit1 a) = let r : ℕ := nat.of_pos_num._main a
+  in nat.succ (nat.add r r)
+nat.of_pos_num._main.equations._eqn_3 : ∀ (a : pos_num), nat.of_pos_num._main (pos_num.bit0 a) = let r : ℕ := nat.of_pos_num._main a in nat.add r r
+nat.of_pos_num.equations._eqn_1 : nat.of_pos_num pos_num.one = 1
+nat.of_pos_num.equations._eqn_2 : ∀ (a : pos_num), nat.of_pos_num (pos_num.bit1 a) = let r : ℕ := nat.of_pos_num a in nat.succ (nat.add r r)
+nat.of_pos_num.equations._eqn_3 : ∀ (a : pos_num), nat.of_pos_num (pos_num.bit0 a) = let r : ℕ := nat.of_pos_num a in nat.add r r
+nat.one_le_bit0 : ∀ (n : ℕ), n ≠ 0 → 1 ≤ bit0 n
+nat.one_le_bit1 : ∀ (n : ℕ), 1 ≤ bit1 n
+nat.one_lt_bit0 : ∀ {n : ℕ}, n ≠ 0 → 1 < bit0 n
+nat.one_lt_bit1 : ∀ {n : ℕ}, n ≠ 0 → 1 < bit1 n
+nat.one_mul : ∀ (n : ℕ), 1 * n = n
+nat.one_ne_bit0 : ∀ (n : ℕ), 1 ≠ bit0 n
+nat.one_ne_bit1 : ∀ {n : ℕ}, n ≠ 0 → 1 ≠ bit1 n
+nat.one_ne_zero : 1 ≠ 0
+nat.one_pos : 0 < 1
+nat.one_pos.equations._eqn_1 : nat.one_pos = nat.zero_lt_one
+nat.ordered_semiring : ordered_semiring ℕ
+nat.ordered_semiring.equations._eqn_1 : nat.ordered_semiring = linear_ordered_semiring.to_ordered_semiring ℕ
+nat.pos_of_ne_zero : ∀ {n : ℕ}, n ≠ 0 → n > 0
+nat.pred : ℕ → ℕ
+nat.pred._main : ℕ → ℕ
+nat.pred._main.equations._eqn_1 : nat.pred._main 0 = 0
+nat.pred._main.equations._eqn_2 : ∀ (a : ℕ), nat.pred._main (a + 1) = a
+nat.pred.equations._eqn_1 : nat.pred 0 = 0
+nat.pred.equations._eqn_2 : ∀ (a : ℕ), nat.pred (a + 1) = a
+nat.pred_inj : ∀ {a b : ℕ}, a > 0 → b > 0 → nat.pred a = nat.pred b → a = b
+nat.pred_le : ∀ (n : ℕ), nat.pred n ≤ n
+nat.pred_le_iff_true : ∀ (n : ℕ), nat.pred n ≤ n ↔ true
+nat.pred_le_pred : ∀ {n m : ℕ}, n ≤ m → nat.pred n ≤ nat.pred m
+nat.pred_lt : ∀ {n : ℕ}, n ≠ 0 → nat.pred n < n
+nat.pred_succ : ∀ (n : ℕ), nat.pred (nat.succ n) = n
+nat.pred_zero : nat.pred 0 = 0
+nat.prio : num
+nat.prio.equations._eqn_1 : nat.prio = num.add std.priority.default 100
+nat.rec : Π {C : ℕ → Sort l}, C 0 → (Π (a : ℕ), C a → C (nat.succ a)) → Π (n : ℕ), C n
+nat.rec_on : Π {C : ℕ → Sort l} (n : ℕ), C 0 → (Π (a : ℕ), C a → C (nat.succ a)) → C n
+nat.repeat : Π {α : Type u}, (ℕ → α → α) → ℕ → α → α
+nat.repeat._main : Π {α : Type u}, (ℕ → α → α) → ℕ → α → α
+nat.repeat._main.equations._eqn_1 : ∀ {α : Type u} (f : ℕ → α → α) (a : α), nat.repeat._main f 0 a = a
+nat.repeat._main.equations._eqn_2 : ∀ {α : Type u} (f : ℕ → α → α) (n : ℕ) (a : α),
+  nat.repeat._main f (nat.succ n) a = f n (nat.repeat._main f n a)
+nat.repeat.equations._eqn_1 : ∀ {α : Type u} (f : ℕ → α → α) (a : α), nat.repeat f 0 a = a
+nat.repeat.equations._eqn_2 : ∀ {α : Type u} (f : ℕ → α → α) (n : ℕ) (a : α), nat.repeat f (nat.succ n) a = f n (nat.repeat f n a)
+nat.right_distrib : ∀ (n m k : ℕ), (n + m) * k = n * k + m * k
+nat.self_lt_succ : ∀ (n : ℕ), n < nat.succ n
+nat.self_lt_succ_iff_true : ∀ (n : ℕ), n < nat.succ n ↔ true
+nat.semigroup : semigroup ℕ
+nat.semigroup.equations._eqn_1 : nat.semigroup = monoid.to_semigroup ℕ
+nat.semiring : semiring ℕ
+nat.semiring.equations._eqn_1 : nat.semiring = ordered_semiring.to_semiring ℕ
+nat.sub : ℕ → ℕ → ℕ
+nat.sub._main : ℕ → ℕ → ℕ
+nat.sub._main.equations._eqn_1 : ∀ (a : ℕ), nat.sub._main a 0 = a
+nat.sub._main.equations._eqn_2 : ∀ (a b : ℕ), nat.sub._main a (b + 1) = nat.pred (nat.sub._main a b)
+nat.sub.equations._eqn_1 : ∀ (a : ℕ), nat.sub a 0 = a
+nat.sub.equations._eqn_2 : ∀ (a b : ℕ), nat.sub a (b + 1) = nat.pred (nat.sub a b)
+nat.sub.right_comm : ∀ (m n k : ℕ), m - n - k = m - k - n
+nat.sub_add_cancel : ∀ {n m : ℕ}, n ≥ m → n - m + m = n
+nat.sub_add_min_cancel : ∀ (n m : ℕ), n - m + min n m = n
+nat.sub_eq_sub_min : ∀ (n m : ℕ), n - m = n - min n m
+nat.sub_eq_succ_sub_succ : ∀ (a b : ℕ), a - b = nat.succ a - nat.succ b
+nat.sub_eq_zero_of_le : ∀ {n m : ℕ}, n ≤ m → n - m = 0
+nat.sub_le : ∀ (a b : ℕ), a - b ≤ a
+nat.sub_le_iff_true : ∀ (a b : ℕ), a - b ≤ a ↔ true
+nat.sub_le_sub_right : ∀ {n m : ℕ}, n ≤ m → ∀ (k : ℕ), n - k ≤ m - k
+nat.sub_lt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
+nat.sub_lt_succ : ∀ (a b : ℕ), a - b < nat.succ a
+nat.sub_lt_succ_iff_true : ∀ (a b : ℕ), a - b < nat.succ a ↔ true
+nat.sub_one : ∀ (n : ℕ), n - 1 = nat.pred n
+nat.sub_pos_of_lt : ∀ {m n : ℕ}, m < n → n - m > 0
+nat.sub_self : ∀ (n : ℕ), n - n = 0
+nat.sub_self_add : ∀ (n m : ℕ), n - (n + m) = 0
+nat.sub_sub : ∀ (n m k : ℕ), n - m - k = n - (m + k)
+nat.sub_succ : ∀ (n m : ℕ), n - nat.succ m = nat.pred (n - m)
+nat.sub_zero : ∀ (n : ℕ), n - 0 = n
+nat.succ : ℕ → ℕ
+nat.succ_add : ∀ (n m : ℕ), nat.succ n + m = nat.succ (n + m)
+nat.succ_le_of_lt : ∀ {a b : ℕ}, a < b → nat.succ a ≤ b
+nat.succ_le_self_iff_false : ∀ (n : ℕ), nat.succ n ≤ n ↔ false
+nat.succ_le_succ : ∀ {n m : ℕ}, n ≤ m → nat.succ n ≤ nat.succ m
+nat.succ_le_zero_iff_false : ∀ (n : ℕ), nat.succ n ≤ 0 ↔ false
+nat.succ_lt_succ : ∀ {a b : ℕ}, a < b → nat.succ a < nat.succ b
+nat.succ_mul : ∀ (n m : ℕ), nat.succ n * m = n * m + m
+nat.succ_mul_succ_eq : ∀ (a : ℕ), nat.succ a * nat.succ a = a * a + a + a + 1
+nat.succ_ne_self : ∀ (n : ℕ), nat.succ n ≠ n
+nat.succ_ne_zero : ∀ (n : ℕ), nat.succ n ≠ 0
+nat.succ_pos : ∀ (n : ℕ), 0 < nat.succ n
+nat.succ_pos.equations._eqn_1 : nat.succ_pos = nat.zero_lt_succ
+nat.succ_pos_iff_true : ∀ (n : ℕ), 0 < nat.succ n ↔ true
+nat.succ_pos_iff_true.equations._eqn_1 : nat.succ_pos_iff_true = nat.zero_lt_succ_iff_true
+nat.succ_pred_eq_of_pos : ∀ {n : ℕ}, n > 0 → nat.succ (nat.pred n) = n
+nat.succ_sub : ∀ {m n : ℕ}, m ≥ n → nat.succ m - n = nat.succ (m - n)
+nat.succ_sub_one : ∀ (n : ℕ), nat.succ n - 1 = n
+nat.succ_sub_sub_succ : ∀ (n m k : ℕ), nat.succ n - m - nat.succ k = n - m - k
+nat.succ_sub_succ : ∀ (n m : ℕ), nat.succ n - nat.succ m = n - m
+nat.succ_sub_succ_eq_sub : ∀ (a b : ℕ), nat.succ a - nat.succ b = a - b
+nat.to_string : ℕ → string
+nat.to_string._main : ℕ → string
+nat.to_string._main.equations._eqn_1 : nat.to_string._main 0 = "zero"
+nat.to_string._main.equations._eqn_2 : ∀ (a : ℕ), nat.to_string._main (nat.succ a) = "(succ " ++ nat.to_string._main a ++ ")"
+nat.to_string.equations._eqn_1 : nat.to_string 0 = "zero"
+nat.to_string.equations._eqn_2 : ∀ (a : ℕ), nat.to_string (nat.succ a) = "(succ " ++ nat.to_string a ++ ")"
+nat.weak_order : weak_order ℕ
+nat.weak_order.equations._eqn_1 : nat.weak_order = {le := nat.less_than_or_equal,
+ le_refl := nat.le_refl,
+ le_trans := nat.le_trans,
+ le_antisymm := nat.le_antisymm}
+nat.zero : ℕ
+nat.zero_add : ∀ (n : ℕ), 0 + n = n
+nat.zero_eq_zero_sub : ∀ (a : ℕ), 0 = 0 - a
+nat.zero_le : ∀ (n : ℕ), 0 ≤ n
+nat.zero_le_iff_true : ∀ (n : ℕ), 0 ≤ n ↔ true
+nat.zero_lt_bit0 : ∀ {n : ℕ}, n ≠ 0 → 0 < bit0 n
+nat.zero_lt_bit1 : ∀ (n : ℕ), 0 < bit1 n
+nat.zero_lt_one : 0 < 1
+nat.zero_lt_succ : ∀ (n : ℕ), 0 < nat.succ n
+nat.zero_lt_succ_iff_true : ∀ (n : ℕ), 0 < nat.succ n ↔ true
+nat.zero_min : ∀ (a : ℕ), min 0 a = 0
+nat.zero_mul : ∀ (n : ℕ), 0 * n = 0
+nat.zero_ne_bit0 : ∀ {n : ℕ}, n ≠ 0 → 0 ≠ bit0 n
+nat.zero_ne_bit1 : ∀ (n : ℕ), 0 ≠ bit1 n
+nat.zero_ne_one : 0 ≠ 1
+nat.zero_sub : ∀ (n : ℕ), 0 - n = 0
+nat.zero_sub_eq_zero : ∀ (a : ℕ), 0 - a = 0
+nat.le : ℕ → ℕ → Prop
+nat.le.dest : ∀ {n m : ℕ}, n ≤ m → (∃ (k : ℕ), n + k = m)
+nat.le.equations._eqn_1 : ∀ (n m : ℕ), nat.le n m = nat.less_than_or_equal n m
+nat.le.intro : ∀ {n m k : ℕ}, n + k = m → n ≤ m
+add_comm_group : Type u → Type u
+add_comm_monoid : Type u → Type u
+add_comm_semigroup : Type u → Type u
+add_group : Type u → Type u
+add_left_cancel_semigroup : Type u → Type u
+add_monoid : Type u → Type u
+add_right_cancel_semigroup : Type u → Type u
+add_semigroup : Type u → Type u
+alternative : (Type u → Type v) → Type (max (u+1) v)
+applicative : (Type u → Type v) → Type (max (u+1) v)
+comm_group : Type u → Type u
+comm_monoid : Type u → Type u
+comm_ring : Type u → Type u
+comm_semigroup : Type u → Type u
+comm_semiring : Type u → Type u
+decidable : Prop → Type
+decidable_linear_order : Type u → Type u
+decidable_linear_ordered_cancel_comm_monoid : Type u → Type u
+decidable_linear_ordered_comm_group : Type u → Type u
+decidable_linear_ordered_comm_ring : Type u → Type u
+decidable_linear_ordered_semiring : Type u → Type u
+discrete_field : Type u → Type u
+discrete_linear_ordered_field : Type u → Type u
+distrib : Type u → Type u
+division_ring : Type u → Type u
+field : Type u → Type u
+functor : (Type u → Type v) → Type (max (u+1) v)
+group : Type u → Type u
+has_add : Type u → Type u
+has_andthen : Type u → Type u
+has_append : Type u → Type u
+has_coe : Sort u → Sort v → Sort (max 1 (imax u v))
+has_coe_t : Sort u → Sort v → Sort (max 1 (imax u v))
+has_coe_t_aux : Sort u → Sort v → Sort (max 1 (imax u v))
+has_coe_to_fun : Sort u → Sort (max u (v+1))
+has_coe_to_sort : Sort u → Type (max u (v+1))
+has_div : Type u → Type u
+has_dvd : Type u → Type u
+has_emptyc : Type u → Type u
+has_insert : out_param Type u → Type v → Type (max u v)
+has_inter : Type u → Type u
+has_inv : Type u → Type u
+has_le : Type u → Type u
+has_lift : Sort u → Sort v → Sort (max 1 (imax u v))
+has_lift_t : Sort u → Sort v → Sort (max 1 (imax u v))
+has_lt : Type u → Type u
+has_mem : out_param Type u → Type v → Type (max u v)
+has_mod : Type u → Type u
+has_mul : Type u → Type u
+has_neg : Type u → Type u
+has_one : Type u → Type u
+has_ordering : Type → Type
+has_quote : Type → Type
+has_sdiff : Type u → Type u
+has_sep : out_param Type u → Type v → Type (max u v)
+has_sizeof : Sort u → Sort (max 1 u)
+has_ssubset : Type u → Type u
+has_sub : Type u → Type u
+has_subset : Type u → Type u
+has_to_format : Type u → Type u
+has_to_pexpr : Type u → Type u
+has_to_string : Type u → Type u
+has_to_tactic_format : Type u → Type u
+has_union : Type u → Type u
+has_zero : Type u → Type u
+inhabited : Sort u → Sort (max 1 u)
+integral_domain : Type u → Type u
+is_associative : Π (α : Type u), (α → α → α) → Type
+is_commutative : Π (α : Type u), (α → α → α) → Type
+left_cancel_semigroup : Type u → Type u
+linear_order_pair : Type u → Type u
+linear_ordered_comm_ring : Type u → Type u
+linear_ordered_field : Type u → Type u
+linear_ordered_ring : Type u → Type u
+linear_ordered_semiring : Type u → Type u
+linear_strong_order_pair : Type u → Type u
+linear_weak_order : Type u → Type u
+monad : (Type u → Type v) → Type (max (u+1) v)
+monad.has_monad_lift : (Type → Type) → (Type → Type) → Type 1
+monad.has_monad_lift_t : (Type → Type) → (Type → Type) → Type 1
+monad.monad_transformer : (Π (m : Type → Type u_1) [_inst_1 : monad m], Type → Type) → Type (u_1+1)
+monad_fail : (Type u → Type v) → Type (max (u+1) v)
+monoid : Type u → Type u
+mul_zero_class : Type u → Type u
+no_zero_divisors : Type u → Type u
+nonempty : Sort u → Prop
+order_pair : Type u → Type u
+ordered_cancel_comm_monoid : Type u → Type u
+ordered_comm_group : Type u → Type u
+ordered_ring : Type u → Type u
+ordered_semiring : Type u → Type u
+pre_monad : (Type u → Type v) → Type (max (u+1) v)
+right_cancel_semigroup : Type u → Type u
+ring : Type u → Type u
+semigroup : Type u → Type u
+semiring : Type u → Type u
+setoid : Type u → Type u
+strict_order : Type u → Type u
+strong_order_pair : Type u → Type u
+subsingleton : Sort u → Prop
+weak_order : Type u → Type u
+zero_ne_one_class : Type u → Type u
+int.ring : ring ℤ
+division_ring.to_ring : Π (α : Type u) [s : division_ring α], ring α
+ordered_ring.to_ring : Π (α : Type u) [s : ordered_ring α], ring α
+comm_ring.to_ring : Π (α : Type u) [s : comm_ring α], ring α
+ring.add : Π {α : Type u} [c : ring α], α → α → α
+ring.add_assoc : ∀ {α : Type u} [c : ring α] (a b c_1 : α), a + b + c_1 = a + (b + c_1)
+ring.zero : Π (α : Type u) [c : ring α], α
+ring.zero_add : ∀ {α : Type u} [c : ring α] (a : α), 0 + a = a
+ring.add_zero : ∀ {α : Type u} [c : ring α] (a : α), a + 0 = a
+ring.neg : Π {α : Type u} [c : ring α], α → α
+ring.add_left_neg : ∀ {α : Type u} [c : ring α] (a : α), -a + a = 0
+ring.add_comm : ∀ {α : Type u} [c : ring α] (a b : α), a + b = b + a
+ring.mul : Π {α : Type u} [c : ring α], α → α → α
+ring.mul_assoc : ∀ {α : Type u} [c : ring α] (a b c_1 : α), a * b * c_1 = a * (b * c_1)
+ring.one : Π (α : Type u) [c : ring α], α
+ring.one_mul : ∀ {α : Type u} [c : ring α] (a : α), 1 * a = a
+ring.mul_one : ∀ {α : Type u} [c : ring α] (a : α), a * 1 = a
+ring.left_distrib : ∀ {α : Type u} [c : ring α] (a b c_1 : α), a * (b + c_1) = a * b + a * c_1
+ring.right_distrib : ∀ {α : Type u} [c : ring α] (a b c_1 : α), (a + b) * c_1 = a * c_1 + b * c_1
+#+end_example
 
 The behavior of the generic print command is determined by its
 argument, so that the following pairs of commands all do the same
@@ -830,6 +1679,47 @@ print inductive nat
 print group
 print inductive group
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+@[pattern]
+def add : Π {α : Type u} [_inst_1 : has_add α], α → α → α :=
+λ {α : Type u} [_inst_1 : has_add α], has_add.add
+@[pattern]
+definition add : Π {α : Type u} [_inst_1 : has_add α], α → α → α
+λ {α : Type u} [_inst_1 : has_add α], has_add.add
+_ `+`:65 _:65 := add #1 #0
+_ `+`:65 _:65 := add #1 #0
+inductive nat : Type
+constructors:
+nat.zero : ℕ
+nat.succ : ℕ → ℕ
+inductive nat : Type
+constructors:
+nat.zero : ℕ
+nat.succ : ℕ → ℕ
+@[class, priority 100]
+structure group : Type u → Type u
+fields:
+group.mul : Π {α : Type u} [c : group α], α → α → α
+group.mul_assoc : ∀ {α : Type u} [c : group α] (a b c_1 : α), a * b * c_1 = a * (b * c_1)
+group.one : Π (α : Type u) [c : group α], α
+group.one_mul : ∀ {α : Type u} [c : group α] (a : α), 1 * a = a
+group.mul_one : ∀ {α : Type u} [c : group α] (a : α), a * 1 = a
+group.inv : Π {α : Type u} [c : group α], α → α
+group.mul_left_inv : ∀ {α : Type u} [c : group α] (a : α), a⁻¹ * a = 1
+@[class, priority 100]
+structure group : Type u → Type u
+fields:
+group.mul : Π {α : Type u} [c : group α], α → α → α
+group.mul_assoc : ∀ {α : Type u} [c : group α] (a b c_1 : α), a * b * c_1 = a * (b * c_1)
+group.one : Π (α : Type u) [c : group α], α
+group.one_mul : ∀ {α : Type u} [c : group α] (a : α), 1 * a = a
+group.mul_one : ∀ {α : Type u} [c : group α] (a : α), a * 1 = a
+group.inv : Π {α : Type u} [c : group α], α → α
+group.mul_left_inv : ∀ {α : Type u} [c : group α] (a : α), a⁻¹ * a = 1
+#+end_example
+
 Moreover, both =print group= and =print inductive group= recognize
 that a group is a structure (see [[file:09_Structures_and_Records.org::#Structures_and_Records][Chapter 9]]), and so print the fields as
 well.
@@ -841,20 +1731,20 @@ well.
 
 Lean maintains a number of internal variables that can be set by users
 to control its behavior. The syntax for doing so is as follows:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 set_option <name> <value>
-#+END_SRC
+#+END_EXAMPLE
 
 One very useful family of options controls the way Lean's /pretty-
 printer/ displays terms. The following options take an input of true
 or false:
-#+BEGIN_SRC text
+#+BEGIN_EXAMPLE
 pp.implicit  : display implicit arguments
 pp.universes : display hidden universe parameters
 pp.coercions : show coercions
 pp.notation  : display output using defined notations
 pp.beta      : beta reduce terms before displaying them
-#+END_SRC
+#+END_EXAMPLE
 
 As an example, the following settings yield much longer output:
 #+BEGIN_SRC lean
@@ -867,6 +1757,16 @@ check 2 + 2 = 4
 eval (λ x, x + 2) = (λ x, x + 3)
 check (λ x, x + 1) 1
 #+END_SRC
+
+#+RESULTS:
+: @eq.{1} nat
+:   (@add.{0} nat nat.has_add (@bit0.{0} nat nat.has_add (@one.{0} nat nat.has_one))
+:      (@bit0.{0} nat nat.has_add (@one.{0} nat nat.has_one)))
+:   (@bit0.{0} nat nat.has_add (@bit0.{0} nat nat.has_add (@one.{0} nat nat.has_one))) :
+:   Prop
+: @eq.{1} (nat → nat) (λ (x : nat), nat.succ (nat.succ x)) (λ (x : nat), nat.succ (nat.succ (nat.succ x)))
+: (λ (x : nat), @add.{0} nat nat.has_add x (@one.{0} nat nat.has_one)) (@one.{0} nat nat.has_one) : nat
+
 The command =set_option pp.all true= carries out these settings all at
 once, whereas =set_option pp.all false= reverts to the previous
 values. Pretty printing additional information is often very useful
@@ -881,6 +1781,9 @@ controls this feature.
 set_option pp.beta true
 check (λ x, x + 1) 1
 #+END_SRC
+
+#+RESULTS:
+: 1 + 1 : ℕ
 
 ** Elaboration Hints
 :PROPERTIES:
@@ -904,9 +1807,9 @@ have type =nat=. Then it is clear that the implicit argument =α= has
 to be =nat=. However, some inference problems are /higher order/. For
 example, the substitution operation for equality, =eq.subst=, has the
 following type:
-#+BEGIN_SRC lean_text
+#+BEGIN_EXAMPLE
 eq.subst : ∀ {α : Sort u} {P : α → Prop} {a b : α}, a = b → P a → P b
-#+END_SRC
+#+END_EXAMPLE
 Now suppose we are given =a b : ℕ= and =h₁ : a = b= and =h₂ : a * b >
 a=. Then, in the expression =eq.subst h₁ h₂=, =P= could be any of the
 following:
@@ -1030,6 +1933,14 @@ check @mul_one
 check @sub_add_eq_add_sub
 check @le_iff_lt_or_eq
 #+END_SRC
+
+#+RESULTS:
+: succ_ne_zero : ∀ (n : ℕ), succ n ≠ 0
+: mul_zero : ∀ {α : Type u_1} [_inst_1 : mul_zero_class α] (a : α), a * 0 = 0
+: mul_one : ∀ {α : Type u_1} [_inst_1 : monoid α] (a : α), a * 1 = a
+: sub_add_eq_add_sub : ∀ {α : Type u_1} [_inst_1 : add_comm_group α] (a b c : α), a - b + c = a + c - b
+: le_iff_lt_or_eq : ∀ {α : Type u_1} [_inst_1 : strong_order_pair α] {a b : α}, a ≤ b ↔ a < b ∨ a = b
+
 If only a prefix of the description is enough to convey the meaning,
 the name may be made even shorter:
 #+BEGIN_SRC lean
@@ -1040,6 +1951,11 @@ check @neg_neg
 check pred_succ
 -- END
 #+END_SRC
+
+#+RESULTS:
+: neg_neg : ∀ {α : Type u_1} [_inst_1 : add_group α] (a : α), - -a = a
+: pred_succ : ∀ (n : ℕ), pred (succ n) = n
+
 Sometimes, to disambiguate the name of theorem or better convey the
 intended reference, it is necessary to describe some of the
 hypotheses. The word "of" is used to separate these hypotheses:
@@ -1049,6 +1965,13 @@ check @lt_of_not_ge
 check @lt_of_le_of_ne
 check @add_lt_add_of_lt_of_le
 #+END_SRC
+
+#+RESULTS:
+: nat.lt_of_succ_le : ∀ {a b : ℕ}, nat.succ a ≤ b → a < b
+: lt_of_not_ge : ∀ {α : Type u_1} [_inst_1 : linear_strong_order_pair α] {a b : α}, ¬a ≥ b → a < b
+: lt_of_le_of_ne : ∀ {α : Type u_1} [_inst_1 : strong_order_pair α] {a b : α}, a ≤ b → a ≠ b → a < b
+: add_lt_add_of_lt_of_le :
+:   ∀ {α : Type u_1} [_inst_1 : ordered_cancel_comm_monoid α] {a b c d : α}, a < b → c ≤ d → a + c < b + d
 
 # TODO: add this when we have these names
 #
@@ -1069,6 +1992,12 @@ check @add_le_add_left
 check @add_le_add_right
 #+END_SRC
 
+#+RESULTS:
+: add_le_add_left :
+:   ∀ {α : Type u_1} [s : ordered_cancel_comm_monoid α] {a b : α}, a ≤ b → ∀ (c : α), c + a ≤ c + b
+: add_le_add_right :
+:   ∀ {α : Type u_1} [_inst_1 : ordered_cancel_comm_monoid α] {a b : α}, a ≤ b → ∀ (c : α), a + c ≤ b + c
+
 # TODO: add these
 # check le_of_mul_le_mul_left
 # check le_of_mul_le_mul_right
@@ -1078,6 +2007,10 @@ We can also use the word "self" to indicate a repeated argument:
 check mul_inv_self
 check neg_add_self
 #+END_SRC
+
+#+RESULTS:
+: mul_inv_self : ∀ (a : ?M_1), a * a⁻¹ = 1
+: neg_add_self : ∀ (a : ?M_1), -a + a = 0
 
 Remember that identifiers in Lean can be organized into hierarchical
 namespaces. For example, the theorem named =lt_of_succ_le= in the
@@ -1093,6 +2026,15 @@ check @prod.fst
 check @prod.snd
 check @prod.rec
 #+END_SRC
+
+#+RESULTS:
+: prod.mk : Π {α : Type u_1} {β : Type u_2}, α → β → α × β
+: prod.fst : Π {α : Type u_1} {β : Type u_2}, α × β → α
+: prod.snd : Π {α : Type u_1} {β : Type u_2}, α × β → β
+: prod.rec :
+:   Π {α : Type u_2} {β : Type u_3} {C : α × β → Sort u_1},
+:     (Π (fst : α) (snd : β), C (fst, snd)) → Π (n : α × β), C n
+
 The first is used to construct a pair, whereas the next two,
 =prod.fst= and =prod.snd=, project the two elements. The last,
 =prod.rec=, provides another mechanism for defining functions on a
@@ -1115,6 +2057,21 @@ check @exists.elim
 check @eq.refl
 check @eq.subst
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+and.intro : ∀ {a b : Prop}, a → b → a ∧ b
+and.elim : ∀ {a b c : Prop}, a ∧ b → (a → b → c) → c
+and.left : ∀ {a b : Prop}, a ∧ b → a
+and.right : ∀ {a b : Prop}, a ∧ b → b
+or.inl : ∀ {a b : Prop}, a → a ∨ b
+or.inr : ∀ {a b : Prop}, b → a ∨ b
+or.elim : ∀ {a b c : Prop}, a ∨ b → (a → c) → (b → c) → c
+exists.intro : ∀ {α : Sort u_1} {p : α → Prop} (a : α), p a → Exists p
+exists.elim : ∀ {α : Sort u_1} {p : α → Prop} {b : Prop}, (∃ (x : α), p x) → (∀ (a : α), p a → b) → b
+eq.refl : ∀ {α : Sort u_1} (a : α), a = a
+eq.subst : ∀ {α : Sort u_1} {P : α → Prop} {a b : α}, a = b → P a → P b
+#+end_example
 
 # TODO(Jeremy): if later we want to give examples of how to define
 # coercions, the following text from the old TPL may be helpful.

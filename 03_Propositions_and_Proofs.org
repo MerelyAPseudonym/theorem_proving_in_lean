@@ -44,6 +44,12 @@ check implies (and p q) (and q p)  -- Prop
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+: and p q : Prop
+: or (and p q) r : Prop
+: implies (and p q) (and q p) : Prop
+
 We could then introduce, for each element =p : Prop=, another type
 =Proof p=, for the type of proofs of =p=. An "axiom" would be constant
 of such a type.
@@ -67,6 +73,9 @@ check and_comm p q      -- Proof (implies (and p q) (and q p))
 end hide
 #+END_SRC
 
+#+RESULTS:
+: and_comm p q : Proof (implies (and p q) (and q p))
+
 In addition to axioms, however, we would also need rules to build new
 proofs from old ones. For example, in many proof systems for
 propositional logic, we have the rule of modus ponens:
@@ -86,6 +95,9 @@ constant modus_ponens (p q : Prop) : Proof (implies p q) →  Proof p → Proof 
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 Systems of natural deduction for propositional logic also typically
 rely on the following rule:
 #+BEGIN_QUOTE
@@ -106,6 +118,9 @@ constant implies_intro (p q : Prop) : (Proof p → Proof q) → Proof (implies p
 
 end hide
 #+END_SRC
+
+#+RESULTS:
+
 This approach would provide us with a reasonable way of building
 assertions and proofs. Determining that an expression =t= is a correct
 proof of assertion =p= would then simply be a matter of checking that
@@ -204,6 +219,8 @@ constants p q : Prop
 theorem t1 : p → q → p := λ hp : p, λ hq : q, hp
 #+END_SRC
 
+#+RESULTS:
+
 This looks exactly like the definition of the constant function in the
 last chapter, the only difference being that the arguments are
 elements of =Prop= rather than =Type=. Intuitively, our proof of =p →
@@ -266,6 +283,11 @@ theorem t1 : p → q → p := λ hp : p, λ hq : q, hp
 print t1
 -- END
 #+END_SRC
+
+#+RESULTS:
+: theorem t1 : p → q → p :=
+: λ (hp : p) (hq : q), hp
+
 (To save space, the online version of Lean does not store proofs of
 theorems in the library, so you cannot print them in the browser
 interface.)
@@ -284,6 +306,8 @@ hp
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 Lean also allows us to specify the type of the final term =hp=,
 explicitly, with a =show= statement.
 #+BEGIN_SRC lean
@@ -296,6 +320,8 @@ assume hq : q,
 show p, from hp
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 Adding such extra information can improve the clarity of a proof and
 help detect errors when writing a proof. The =show= command does
@@ -314,6 +340,8 @@ show p, from hp
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 As with ordinary definitions, one can move the lambda-abstracted
 variables to the left of the colon:
 #+BEGIN_SRC lean
@@ -325,6 +353,10 @@ theorem t1 (hp : p) (hq : q) : p := hp
 check t1 -- p → q → p
 -- END
 #+END_SRC
+
+#+RESULTS:
+: t1 : p → q → p
+
 Now we can apply the theorem =t1= just as a function application.
 #+BEGIN_SRC lean
 constants p q : Prop
@@ -337,6 +369,9 @@ axiom hp : p
 theorem t2 : q → p := t1 hp
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Here, the =axiom= command is alternative syntax for =constant=.
 Declaring a "constant" =hp : p= is tantamount to declaring that =p= is
 true, as witnessed by =hp=. Applying the theorem =t1 : p → q → p= to
@@ -350,6 +385,10 @@ quantifies over those, too:
 theorem t1 (p q : Prop) (hp : p) (hq : q) : p := hp
 check t1
 #+END_SRC
+
+#+RESULTS:
+: t1 : ∀ (p q : Prop), p → q → p
+
 The type of =t1= is now =∀ p q : Prop, p → q → p=. We can read this as
 the assertion "for every pair of propositions =p q=, we have =p → q →
 p=". The symbol =∀= is alternate syntax for =Π=, and later we will see
@@ -374,6 +413,13 @@ check t1 (r → s) (s → r)    -- (r → s) → (s → r) → r → s
 variable h : r → s
 check t1 (r → s) (s → r) h  -- (s → r) → r → s
 #+END_SRC
+
+#+RESULTS:
+: t1 p q : p → q → p
+: t1 r s : r → s → r
+: t1 (r → s) (s → r) : (r → s) → (s → r) → r → s
+: t1 (r → s) (s → r) h : (s → r) → r → s
+
 Remember that under the propositions-as-types correspondence, a
 variable =h= of type =r → s= can be viewed as the hypothesis, or
 premise, that =r → s= holds. For that reason, Lean offers the
@@ -389,6 +435,9 @@ check t1 (r → s) (s → r) h
 -- END
 #+END_SRC
 
+#+RESULTS:
+: t1 (r → s) (s → r) h : (s → r) → r → s
+
 As another example, let us consider the composition function discussed
 in the last chapter, now with propositions instead of types.
 #+BEGIN_SRC lean
@@ -398,6 +447,9 @@ theorem t2 (h1 : q → r) (h2 : p → q) : p → r :=
 assume h3 : p,
 show r, from h1 (h2 h3)
 #+END_SRC
+
+#+RESULTS:
+
 As a theorem of propositional logic, what does =t2= say?
 
 Lean allows the alternative syntax =premise= and =premises= for
@@ -414,6 +466,8 @@ theorem t2 : p → r :=
 assume h₃ : p,
 show r, from h₁ (h₂ h₃)
 #+END_SRC
+
+#+RESULTS:
 
 ** Propositional Logic
 
@@ -438,6 +492,11 @@ check p → q → p ∧ q
 check ¬p → p ↔ false
 check p ∨ q → q ∨ p
 #+END_SRC
+
+#+RESULTS:
+: p → q → p ∧ q : Prop
+: ¬p → p ↔ false : Prop
+: p ∨ q → q ∨ p : Prop
 
 The order of operations is fairly standard: unary negation =¬= binds
 most strongly, then =∧= and =∨=, and finally =→= and =↔=. For example,
@@ -471,6 +530,10 @@ example (hp : p) (hq : q) : p ∧ q := and.intro hp hq
 check assume (hp : p) (hq : q), and.intro hp hq
 -- END
 #+END_SRC
+
+#+RESULTS:
+: λ (hp : p) (hq : q), and.intro hp hq : p → q → p ∧ q
+
 The =example= command states a theorem without naming it or storing it
 in the permanent context. Essentially, it just checks that the given
 term has the indicated type. It is convenient for illustration, and we
@@ -486,6 +549,9 @@ example (h : p ∧ q) : p := and.elim_left h
 example (h : p ∧ q) : q := and.elim_right h
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Because they are so commonly used, the standard library provides the
 abbreviations =and.left= and =and.right= for =and.elim_left= and
 =and.elim_right=, respectively.
@@ -498,6 +564,8 @@ example (h : p ∧ q) : q ∧ p :=
 and.intro (and.right h) (and.left h)
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 Notice that and-introduction and and-elimination are similar to the
 pairing and projection operations for the cartesian product. The
@@ -527,6 +595,10 @@ premises  (hp : p) (hq : q)
 
 check (⟨hp, hq⟩ : p ∧ q)
 #+END_SRC
+
+#+RESULTS:
+: and.intro hp hq : p ∧ q
+
 These angle brackets are obtained by typing =\<= and =\>=,
 respectively. Alternatively, you can use ASCII equivalents =(|= and =|)=:
 #+BEGIN_SRC lean
@@ -535,6 +607,8 @@ premises  (hp : p) (hq : q)
 
 example : p ∧ q := (|hp, hq|)
 #+END_SRC
+
+#+RESULTS:
 
 Lean provides another useful syntactic gadget. Given an expression =e=
 of an inductive type =foo= (possibly applied to some arguments), the
@@ -547,6 +621,11 @@ variable l : list ℕ
 check list.head l
 check l^.head
 #+END_SRC
+
+#+RESULTS:
+: list.head l : ℕ
+: list.head l : ℕ
+
 As a result, given =h : p ∧ q=, we can write =h^.left= for =and.left h=
 and =h^.right= for =and.right h=. We can therefore rewrite the sample
 proof above conveniently as follows:
@@ -557,6 +636,9 @@ example (h : p ∧ q) : q ∧ p :=
 ⟨h^.right, h^.left⟩
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 There is a fine line between brevity and obfuscation, and omitting
 information in this way can sometimes make a proof harder to read. But
 for straightforward constructions like the one above, when the type of
@@ -576,6 +658,9 @@ example (h : p ∧ q) : q ∧ p ∧ q:=
 ⟨h^.right, h^.left, h^.right⟩
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 This is often useful as well.
 
 *** Disjunction
@@ -591,6 +676,8 @@ example (hp : p) : p ∨ q := or.intro_left q hp
 example (hq : q) : p ∨ q := or.intro_right p hq
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 The /or-elimination/ rule is slightly more complicated. The idea is
 that we can prove =r= from =p ∨ q=, by showing that =r= follows from
@@ -611,6 +698,8 @@ or.elim h
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 In most cases, the first argument of =or.intro_right= and
 =or.intro_left= can be inferred automatically by Lean. Lean therefore
 provides =or.inr= and =or.inl= as shorthands for =or.intro_right _=
@@ -622,6 +711,9 @@ variables p q r: Prop
 example (h : p ∨ q) : q ∨ p := or.elim h (λ hp, or.inr hp) (λ hq, or.inl hq)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Notice that there is enough information in the full expression for
 Lean to infer the types of =hp= and =hq= as well. But using the type
 annotations in the longer version makes the proof more readable, and
@@ -638,6 +730,9 @@ h^.elim
   (assume hq : q, or.inl hq)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Once again, you should exercise judgment as to whether such
 abbreviations enhance or diminish readability.
 
@@ -691,6 +786,8 @@ show false, from hnq (hpq hp)
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 The connective =false= has a single elimination rule, =false.elim=,
 which expresses the fact that anything follows from a contradiction.
 This rule is sometimes called /ex falso/ (short for /ex falso sequitur
@@ -701,6 +798,9 @@ variables p q : Prop
 example (hp : p) (hnp : ¬p) : q := false.elim (hnp hp)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 The arbitrary fact, =q=, that follows from falsity is an implicit
 argument in =false.elim= and is inferred automatically. This pattern,
 deriving an arbitrary fact from contradictory hypotheses, is quite
@@ -711,6 +811,9 @@ variables p q : Prop
 example (hp : p) (hnp : ¬p) : q := absurd hp hnp
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Here, for example, is a proof of =¬p → q → (q → p) → r=:
 #+BEGIN_SRC lean
 variables p q r : Prop
@@ -719,6 +822,8 @@ example (hnp : ¬p) (hq : q) (hqp : q → p) : r :=
 absurd (hqp hq) hnp
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 Incidentally, just as =false= has only an elimination rule, =true= has
 only an introduction rule, =true.intro : true=, sometimes abbreviated
@@ -745,6 +850,10 @@ iff.intro
 check and_swap p q    -- p ∧ q ↔ q ∧ p
 -- END
 #+END_SRC
+
+#+RESULTS:
+: and_swap p q : p ∧ q ↔ q ∧ p
+
 Because they represent a form of /modus ponens/, =iff.elim_left= and
 =iff.elim_right= can be abbreviated =iff.mp= and =iff.mpr=,
 respectively.  In the next example, we use that theorem to derive =q ∧
@@ -764,6 +873,9 @@ premise h : p ∧ q
 example : q ∧ p := iff.mp (and_swap p q) h
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Because =iff= is defined internally from =and=, we can use the
 anonymous constructor notation to construct a proof of =p ↔ q= from
 proofs of the forward and backward directions. We can also use the
@@ -780,6 +892,8 @@ example (h : p ∧ q) : q ∧ p := (and_swap p q)^.mp h
 -- END
 #+END_SRC
 
+#+RESULTS:
+
 ** Introducing Auxiliary Subgoals
 
 This is a good place to introduce another device Lean offers to help
@@ -794,6 +908,9 @@ have hp : p, from and.left h,
 have hq : q, from and.right h,
 show q ∧ p, from and.intro hq hp
 #+END_SRC
+
+#+RESULTS:
+
 Internally, the expression =have h : p, from s, t= produces the term
 =(λ (h : p), t) s=. In other words, =s= is a proof of =p=, =t= is a
 proof of the desired conclusion assuming =h : p=, and the two are
@@ -814,6 +931,9 @@ have hp : p, from and.left h,
 suffices hq : q, from and.intro hq hp,
 show q, from and.right h
 #+END_SRC
+
+#+RESULTS:
+
 Writing =suffices hq : q= leaves us with two goals. First, we have to
 show that it indeed suffices to show =q=, by proving the original goal
 of =q ∧ p= with the additional hypothesis =hq : q=. Finally, we have
@@ -837,6 +957,9 @@ variable p : Prop
 check em p
 #+END_SRC
 
+#+RESULTS:
+: em p : p ∨ ¬p
+
 Intuitively, the constructive "or" is very strong: asserting =p ∨ q=
 amounts to knowing which is the case. If =RH= represents the Riemann
 hypothesis, a classical mathematician is willing to assert =RH ∨ ¬RH=,
@@ -854,6 +977,9 @@ or.elim (em p)
   (assume hnp : ¬p, absurd hnp h)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Double-negation elimination allows one to prove any proposition, =p=,
 by assuming =¬p= and deriving =false=, because that amounts to proving
 =¬¬p=. In other words, double-negation elimination allows one to carry
@@ -875,6 +1001,9 @@ by_cases
   (assume h1 : ¬p, absurd h1 h)
 -- END
 #+END_SRC
+
+#+RESULTS:
+
 Or you can carry out a proof by contradiction:
 #+BEGIN_SRC lean
 open classical
@@ -887,6 +1016,8 @@ by_contradiction
     show false, from h h1)
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 If you are not used to thinking constructively, it may take some time
 for you to get a sense of where classical reasoning is used. It is
@@ -909,6 +1040,8 @@ or.elim (em p)
     or.inl hp)
 -- END
 #+END_SRC
+
+#+RESULTS:
 
 We will see later that there /are/ situations in constructive logic
 where principles like excluded middle and double-negation elimination
@@ -978,6 +1111,35 @@ example : p ∨ ¬p := sorry
 example : (((p → q) → p) → p) := sorry
 #+END_SRC
 
+#+RESULTS:
+#+begin_example
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:6:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:7:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:10:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:15:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:19:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:11:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:20:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:21:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:22:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:14:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:23:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:18:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:24:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:25:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:26:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:27:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:28:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:29:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:32:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:33:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:34:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:35:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:36:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:37:8: warning: declaration '_example' uses sorry
+/private/var/folders/vt/_vxhqnb53fz1t5xcg1b59ljc0000gn/T/org-babel-lean99004fPP:38:8: warning: declaration '_example' uses sorry
+#+end_example
+
 The =sorry= identifier magically produces a proof of anything, or
 provides an object of any data type at all. Of course, it is unsound
 as a proof method -- for example, you can use it to prove =false= --
@@ -1036,3 +1198,5 @@ show q, from
     (assume hq : q, hq)
     (assume hnq : ¬q, absurd (and.intro hp hnq) h)
 #+END_SRC
+
+#+RESULTS:
